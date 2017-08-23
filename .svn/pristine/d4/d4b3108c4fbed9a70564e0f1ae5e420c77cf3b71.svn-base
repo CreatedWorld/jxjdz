@@ -1,0 +1,180 @@
+﻿using System.Collections;
+using Platform.Model;
+using Platform.Model.Battle;
+using UnityEngine;
+using UnityEngine.UI;
+using Platform.Utils;
+using System.Collections.Generic;
+using DG.Tweening;
+
+/// <summary>
+/// 单局结算头像节点
+/// </summary>
+public class MatchResultPlayerItem : MonoBehaviour
+{
+    /// <summary>
+    /// 节点玩家数据
+    /// </summary>
+    private PlayerMatchResultVOS2C _data;
+    /// <summary>
+    /// 手上的牌数组
+    /// </summary>
+    private List<GameObject> handCards;
+    /// <summary>
+    /// 牌之间的间距
+    /// </summary>
+    private Vector3 cardHGap;
+    /// <summary>
+    /// 牌之间的间距
+    /// </summary>
+    private Vector3 cardVGap;
+
+    /// <summary>
+    /// 本局获得的积分
+    /// </summary>
+    private Text addScoreTxt;
+
+    /// <summary>
+    /// 庄家标志
+    /// </summary>
+    private GameObject bankerIcon;
+
+    /// <summary>
+    /// 头像
+    /// </summary>
+    private RawImage heroIcon;
+
+    /// <summary>
+    /// 玩家名称
+    /// </summary>
+    private Text nameTxt;
+    /// <summary>
+    /// 牌的容器
+    /// </summary>
+    private Transform cardContainer;
+    /// <summary>
+    /// 胡牌标志1
+    /// </summary>
+    private Image huIcon1;
+    /// <summary>
+    /// 胡牌标志2
+    /// </summary>
+    private Image huIcon2;
+
+    // Use this for initialization
+    void Awake()
+    {
+        heroIcon = transform.Find("HeroIcon").GetComponent<RawImage>();
+        nameTxt = transform.Find("NameTxt").GetComponent<Text>();
+        addScoreTxt = transform.Find("tatolScore").GetComponent<Text>();
+        bankerIcon = transform.Find("BankerIcon").gameObject;
+        huIcon1 = transform.Find("HuIcon1").GetComponent<Image>();
+        huIcon2 = transform.Find("HuIcon2").GetComponent<Image>();
+        cardContainer = transform.Find("Card");
+        var card1 = cardContainer.Find("Card1");
+        var card2 = cardContainer.Find("Card2");
+        var card3 = cardContainer.Find("Card3");
+        cardHGap = card2.localPosition - card1.localPosition;
+        cardVGap = card3.localPosition - card1.localPosition;
+    }
+
+    /// <summary>
+    /// 头像框对应的玩家数据
+    /// </summary>
+    public PlayerMatchResultVOS2C data
+    { 
+        get { return _data; }
+        set
+        {
+            _data = value;
+            var battleProxy = ApplicationFacade.Instance.RetrieveProxy(Proxys.BATTLE_PROXY) as BattleProxy;
+            var playerInfoVO = battleProxy.playerIdInfoDic[value.userId];
+            GameMgr.Instance.StartCoroutine(DownIcon(playerInfoVO.headIcon));
+            nameTxt.text = playerInfoVO.name;
+            addScoreTxt.text = value.addScore > 0 ? "+" + value.addScore : value.addScore.ToString();
+            bankerIcon.SetActive(playerInfoVO.userId == battleProxy.perBankerId);
+            handCards = new List<GameObject>();
+            var cardNum = 0;
+            for (int i = 0; i < _data.pengGangs.Count; i++)
+            {
+                for (int j = 0; j < _data.pengGangs[i].pengGangCards.Count; j++)
+                {
+                    GameObject cardItem = ResourcesMgr.Instance.GetFromPool(_data.pengGangs[i].pengGangCards[j]);
+                    cardItem.transform.SetParent(cardContainer);
+                    cardItem.transform.localPosition = GetCardPositionByIndex(cardNum);
+                    cardItem.transform.localScale = Vector3.one;
+                    cardItem.transform.localEulerAngles = Vector3.zero;
+                    handCards.Add(cardItem);
+                    cardNum++;
+                }
+            }
+            if (_data.pengGangs.Count > 0)
+            {
+                cardNum++;
+            }
+            for (int i = 0; i < _data.handCards.Count; i++)
+            {
+                GameObject cardItem = ResourcesMgr.Instance.GetFromPool(_data.handCards[i]);
+                cardItem.transform.SetParent(cardContainer);
+                cardItem.transform.localPosition = GetCardPositionByIndex(cardNum);
+                cardItem.transform.localScale = Vector3.one;
+                cardItem.transform.localEulerAngles = Vector3.zero;
+                handCards.Add(cardItem);
+                cardNum++;
+            }
+            if (battleProxy.matchResultS2C.huUserId.Contains(_data.userId))
+            {
+                huIcon1.color = Color.white;
+                huIcon1.rectTransform.localScale = Vector3.one * 2;
+                huIcon1.rectTransform.DOScale(Vector3.one,0.5f).SetDelay(1.5f);
+                huIcon2.color = Color.white;
+                huIcon2.DOColor(Color.clear, 0.25f).SetDelay(1.75f);
+                huIcon2.rectTransform.DOScale(Vector3.one * 2, 0.25f).SetDelay(1.75f);
+            }
+            else
+            {
+                huIcon1.color = Color.clear;
+                huIcon2.color = Color.clear;
+            }
+        }
+    }
+
+    /// <summary>
+    /// 根据序号获取牌的位置
+    /// </summary>
+    private Vector3 GetCardPositionByIndex(int cardIndex)
+    {
+        int column = cardIndex % 13;
+        int row = cardIndex / 13;
+        return column * cardHGap + row* cardVGap;
+    }
+
+    // Update is called once per frame
+    private void Update()
+    {
+    }
+
+    /// <summary>
+    /// 异步加载头像
+    /// </summary>
+    /// <param name="headUrl"></param>
+    /// <returns></returns>
+    private IEnumerator DownIcon(string headUrl)
+    {
+        var www = new WWW(headUrl);
+        yield return www;
+        if (www.error == null)
+            heroIcon.texture = www.texture;
+    }
+
+    /// <summary>
+    /// 回收所有牌
+    /// </summary>
+    public void SaveAllCard()
+    {
+        foreach (GameObject card in handCards)
+        {
+            ResourcesMgr.Instance.Add2Pool(card);
+        }
+    }
+}

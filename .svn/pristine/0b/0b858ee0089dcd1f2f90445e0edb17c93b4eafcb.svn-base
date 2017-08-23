@@ -1,0 +1,97 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class SdkInterface
+{
+
+    /**获取udid*/
+    public static string getUdid()
+    {
+        AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+        AndroidJavaObject currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+        AndroidJavaObject currContent = currentActivity.Call<AndroidJavaObject>("getApplicationContext");
+        AndroidJavaObject teleMgr = currContent.Call<AndroidJavaObject>("getSystemService", "phone");
+        return teleMgr.Call<string>("getDeviceId");
+    }
+
+    /**获取mac地址*/
+    public static string getMac()
+    {
+        AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+        AndroidJavaObject currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+        AndroidJavaObject currContent = currentActivity.Call<AndroidJavaObject>("getApplicationContext");
+        AndroidJavaObject wifiMgr = currContent.Call<AndroidJavaObject>("getSystemService", "wifi");
+        AndroidJavaObject wifiInfo = wifiMgr.Call<AndroidJavaObject>("getConnectionInfo");
+        return wifiInfo.Call<string>("getMacAddress");
+    }
+
+    /**获取wifi信号强度*/
+    public static int getWifiLevel()
+    {
+        AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+        AndroidJavaObject currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+        AndroidJavaObject currContent = currentActivity.Call<AndroidJavaObject>("getApplicationContext");
+        AndroidJavaObject wifiMgr = currContent.Call<AndroidJavaObject>("getSystemService", "wifi");
+        AndroidJavaObject wifiInfo = wifiMgr.Call<AndroidJavaObject>("getConnectionInfo");
+        int level = wifiInfo.Call<int>("getRssi");
+        return level;
+    }
+
+    /// <summary>
+    /// 复制内容到剪切板
+    /// </summary>
+    /// <param name="copyStr"></param>
+    public static void CopyToClip(string copyStr)
+    {
+        AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+        AndroidJavaObject currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+        AndroidJavaObject currContent = currentActivity.Call<AndroidJavaObject>("getApplicationContext");
+        AndroidJavaObject clipboardMgr = currContent.Call<AndroidJavaObject>("getSystemService", "clipboard");
+        AndroidJavaClass clipData = new AndroidJavaClass("android.content.ClipData");
+        AndroidJavaObject clipDataResult = clipData.CallStatic<AndroidJavaObject>("newPlainText","data",copyStr);
+        clipboardMgr.Call("setPrimaryClip", clipDataResult);
+    }
+
+    /// <summary>
+    /// 微信登陆
+    /// </summary>
+    public static void SendWeiXinLogin()
+    {
+        Debug.Log("SendWeiXinLogin");
+        AndroidJavaClass androidClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+        AndroidJavaObject mainActivity = androidClass.GetStatic<AndroidJavaObject>("currentActivity");
+        mainActivity.Call("OnLoginWeiXin");
+    }
+
+    /// <summary>
+    /// 微信分享
+    /// </summary>
+    public static void WeiXinShare(string text,bool isTimeline)
+    {
+        Debug.Log("微信分享 " + text + isTimeline);
+        AndroidJavaClass androidClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+        AndroidJavaObject mainActivity = androidClass.GetStatic<AndroidJavaObject>("currentActivity");
+        mainActivity.Call("OnShare",text,isTimeline);
+    }
+    /// <summary>
+    /// 获取启动参数
+    /// </summary>
+    public static string GetStartParam()
+    {
+        try
+        {
+            AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+            AndroidJavaObject currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+            AndroidJavaObject intent = currentActivity.Call<AndroidJavaObject>("getIntent");
+            AndroidJavaObject uriData = intent.Call<AndroidJavaObject>("getData");
+            string param = uriData.Call<string>("getQuery");
+            return param;
+        }
+        catch
+        {
+            return null;
+        }
+        
+    }
+}

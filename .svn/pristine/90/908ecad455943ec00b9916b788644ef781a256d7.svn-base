@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with TexturePacker http://texturepacker.com-->
+<!-- $TexturePacker:SmartUpdate:91e8477fdedfafa9867de4aff212fb99$ -->
+<TextureAtlas imagePath="desk.png">
+    <SubTexture name="0" x="516" y="369" width="24" height="38"/>
+    <SubTexture name="1" x="540" y="443" width="8" height="32" frameX="-15" frameY="-3" frameWidth="24" frameHeight="38"/>
+    <SubTexture name="2" x="516" y="329" width="24" height="38"/>
+    <SubTexture name="3" x="516" y="409" width="22" height="38" frameX="-2" frameY="0" frameWidth="24" frameHeight="38"/>
+    <SubTexture name="4" x="540" y="409" width="24" height="32" frameX="0" frameY="-3" frameWidth="24" frameHeight="38"/>
+    <SubTexture name="5" x="516" y="289" width="24" height="38"/>
+    <SubTexture name="6" x="516" y="249" width="24" height="38"/>
+    <SubTexture name="7" x="516" y="449" width="22" height="36" frameX="-2" frameY="0" frameWidth="24" frameHeight="38"/>
+    <SubTexture name="8" x="516" y="209" width="24" height="38"/>
+    <SubTexture name="9" x="516" y="169" width="24" height="38"/>
+    <SubTexture name="majiangzhuo" x="2" y="2" width="512" height="501"/>
+    <SubTexture name="地板" x="516" y="2" width="159" height="165"/>
+</TextureAtlas>

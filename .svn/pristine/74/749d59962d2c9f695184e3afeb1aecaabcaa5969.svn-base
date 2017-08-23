@@ -1,0 +1,100 @@
+﻿using PureMVC.Interfaces;
+using PureMVC.Patterns;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using DG.Tweening;
+using System.Collections;
+
+public class SettingMediator : Mediator, IMediator
+{
+    /// <summary>
+    /// 玩家信息数据
+    /// </summary>
+    private PlayerInfoProxy playerInfoProxy;
+    public SettingMediator(string NAME, object viewComponent):base(NAME,viewComponent)
+    {
+
+    }
+
+    public SettingView View
+    {
+        get
+        {
+            return (SettingView)ViewComponent;
+        }
+    }
+
+    public override void OnRegister()
+    {
+        base.OnRegister();
+        playerInfoProxy = ApplicationFacade.Instance.RetrieveProxy(Proxys.PLAYERINFO) as PlayerInfoProxy;
+        View.UserName.text = playerInfoProxy.UserInfo.UserName;
+        GameMgr.Instance.StartCoroutine(DownIcon(playerInfoProxy.UserInfo.HeadIconUrl));
+        this.View.ButtonAddListening(this.View.CloseButton,
+        () =>
+        {
+            UIManager.Instance.HideUI(UIViewID.SETTING_VIEW);
+        });
+        this.View.ButtonAddListening(this.View.SwitchAccountButton,
+            () =>
+            {
+                UIManager.Instance.Backgournd.color = new Color(1, 1, 1, 0);
+                UIManager.Instance.Backgournd.gameObject.SetActive(true);
+                UIManager.Instance.Backgournd.DOColor(new Color(1, 1, 1, 1), 0.5f).SetEase(Ease.Linear).OnComplete(
+                    () =>
+                    {
+                        if (Application.platform == RuntimePlatform.Android)
+                        {
+                            PlayerPrefs.DeleteKey(PrefsKey.USERMAC);
+                            PlayerPrefs.DeleteKey(PrefsKey.USERNAME);
+                            PlayerPrefs.DeleteKey(PrefsKey.HEADURL);
+                            PlayerPrefs.DeleteKey(PrefsKey.SEX);
+                        }
+                        var loadInfo = new LoadSceneInfo(ESceneID.SCENE_LOGIN, LoadSceneType.SYNC, LoadSceneMode.Single);
+                        ApplicationFacade.Instance.SendNotification(NotificationConstant.MEDI_GAMEMGR_LOADSCENE, loadInfo);
+                    });
+            });
+        this.View.SoundToggle.onValueChanged.AddListener(
+            (bool isOn)=>
+            {
+                if (isOn)
+                {
+                    PlayerPrefs.SetFloat(PrefsKey.SOUNDSET, 1.00f);
+                }
+                else
+                {
+                    PlayerPrefs.SetFloat(PrefsKey.SOUNDSET, 0.0f);
+                }
+                AudioSystem.Instance.SetEffectAudioVolume(PlayerPrefs.GetFloat(PrefsKey.SOUNDSET));
+            });
+        this.View.MusicToggle.onValueChanged.AddListener(
+            (bool isOn) =>
+            {
+                if (isOn)
+                {
+                    PlayerPrefs.SetFloat(PrefsKey.MUSICSET, 1.0f);
+                }
+                else
+                {
+                    PlayerPrefs.SetFloat(PrefsKey.MUSICSET, 0.0f);
+                }
+                AudioSystem.Instance.SetBgmAudioVolume(PlayerPrefs.GetFloat(PrefsKey.MUSICSET));
+            });
+    }
+
+    IEnumerator DownIcon(string headUrl)
+    {
+        WWW www = new WWW(headUrl);
+        yield return www;
+        if (www.error == null)
+        {
+            View.UserPhoto.texture = www.texture;
+        }
+    }
+
+    public override void OnRemove()
+    {
+        base.OnRemove();
+        UIManager.Instance.DestroyUI(UIViewID.SETTING_VIEW);
+    }
+}

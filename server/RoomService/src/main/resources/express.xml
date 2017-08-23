@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <hu>
+        <express name="豪华七对胡" score="10">
+            胡牌组合 = 组成AA胡牌组合(手牌); 胡牌组合.size() 不等于 0 并且 组合个数(胡牌组合,'AA') 等于 7 并且 含有相同麻将(手牌, 4).size() 大于 0
+        </express>
+        <express name="清一色七对胡" score="10">
+            胡牌组合 = 组成AA胡牌组合(手牌); 胡牌组合.size() 不等于 0 并且 组合个数(胡牌组合,'AA') 等于 7 并且 同一花色(个人全部牌)
+        </express>
+        <express name="清一色一条龙胡" score="10">
+            胡牌组合 = 组成胡牌组合(手牌); 组合个数(胡牌组合,'AA') 等于 1 并且 组合个数(胡牌组合,'AAA') + 组合个数(胡牌组合,'ABC') 等于 4 并且 含有序数(手牌,[1,2,3,4,5,6,7,8,9]) 并且 同一花色(个人全部牌)
+        </express>
+        <express name="普通七对胡" score="10">
+            胡牌组合 = 组成AA胡牌组合(手牌); 胡牌组合.size() 不等于 0 并且 组合个数(胡牌组合,'AA') 等于 7 并且 ! ( 含有相同麻将(手牌, 4).size() 大于 0 )
+        </express>
+        <express name="一条龙胡" score="10">
+            胡牌组合 = 组成胡牌组合(手牌); 组合个数(胡牌组合,'AA') 等于 1 并且 含有序数(手牌,[1,2,3,4,5,6,7,8,9])
+        </express>
+        <express name="清一色胡" score="10">
+            胡牌组合 = 组成胡牌组合(手牌); 组合个数(胡牌组合,'AA') 大于 0 并且 同一花色(个人全部牌)
+        </express>
+        <express name="普通平胡" score="10">
+            胡牌组合 = 组成胡牌组合(手牌); 组合个数(胡牌组合,'AA') 等于 1 并且 组合个数(胡牌组合,'AAA') 小于 4
+        </express>
+        <!--
+        /**
+        * 其他麻将
+        */
+        // 普通碰碰胡
+        public static final String COMMON_PENG_PENG_HU_EXPRESS = "胡牌组合 = 组成胡牌组合(手牌); 组合个数(胡牌组合,'AA') 等于 1 并且 组合个数(胡牌组合,'AAA') 等于 4";
+        -->
+        <express name="断断" score="10">
+            胡牌组合 = 组成胡牌组合(手牌); 全部是指定花色(个人全部牌,['万','筒','索']) 并且 !含有一个指定牌(个人全部牌,[11,19,21,29,31,39])
+        </express>
+        <express name="全求人" score="10">
+            胡牌组合 = 组成胡牌组合(手牌); 手牌.size() 等于 2 并且 吃胡
+        </express>
+        <express name="硬碰碰" score="10">
+            胡牌组合 = 组成胡牌组合(手牌); (碰了的牌.size() 大于 0 或者 杠了的牌.size() 大于 0) 并且 组合个数(胡牌组合,'AAA') + 碰了的牌.size() + 杠了的牌.size() 等于 4
+        </express>
+        <express name="普乱" score="10">
+            含有相同麻将(个人全部牌, 2).size() 等于 0 并且 指定花色不靠(个人全部牌,['万','筒','索'],2)
+        </express>
+        <express name="十三幺" score="10">
+            全部是指定牌(手牌,[11,19,21,29,31,39,41,42,43,44,51,52,53]) 并且 含有相同麻将(手牌,2).size() 等于 1
+        </express>
+    </hu>
+    <commonAnGang>
+        <express name="普通暗杠" score="10">
+            包含数量(摸到的牌, 手牌) 大于等于 3
+        </express>
+    </commonAnGang>
+    <backAnGang>
+        <express name="回头暗杠" score="10">
+            ( 麻将列表 = 含有相同麻将(手牌, 4) ).size() 大于 0
+        </express>
+    </backAnGang>
+    <zhiGang>
+        <express name="直杠（明杠）" score="10">
+            包含数量(打出的牌, 手牌) 大于等于 3
+        </express>
+    </zhiGang>
+    <commonPengGang>
+        <express name="普通碰杠（明杠）" score="10">
+            打出的牌 属于其中一组 碰了的牌
+        </express>
+    </commonPengGang>
+    <backPengGang>
+        <express name="回头碰杠（明杠）" score="10">
+            ( 麻将列表 = ( 手牌 其中一只属于 碰了的牌 ) ).size() 大于 0
+        </express>
+    </backPengGang>
+    <peng>
+        <express name="碰" score="10">
+            包含数量(打出的牌, 手牌) 大于等于 2
+        </express>
+    </peng>
+    <chi>
+        <express name="吃" score="10">
+            ( 组合列表 = 吃牌组合(打出的牌, 手牌) ) .size() 大于 0
+        </express>
+    </chi>
+</root>

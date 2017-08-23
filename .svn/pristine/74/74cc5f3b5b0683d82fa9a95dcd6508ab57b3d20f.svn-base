@@ -1,0 +1,579 @@
+﻿using System.Collections;
+using Platform.Net;
+using UnityEngine;
+using System.Collections.Generic;
+using MahjongMethod;
+using LZR.Data.LtiJson;
+using UnityEngine.SceneManagement;
+using Platform.Global;
+
+namespace Platform.Model.Battle
+{
+    /// <summary>
+    /// 客户端数据模拟类
+    /// </summary>
+    public class ClientAIMgr : MonoBehaviour
+    {
+        /// <summary>
+        /// 自己默认摸到的牌
+        /// </summary>
+        private int[] defaultCardIndex = new int[] {17,14,13,13,12, 15, 16, 16, 15, 14, 12,11,11};
+        /// <summary>
+        /// 模拟的玩家名称
+        /// </summary>
+        private string[] playNames = new[] { "达康书记", "猴子", "沙书记", "郑快进" };
+        /// <summary>
+        /// 战斗模块数据中介
+        /// </summary>
+        private BattleProxy battleProxy;
+        /// <summary>
+        /// 当前是第几局
+        /// </summary>
+        private int curInnings = 1;
+        /// <summary>
+        /// 所有卡牌池
+        /// </summary>
+        private List<int> cardPool = new List<int>(GlobalData.CardWare);
+        /// <summary>
+        /// 当前出牌的玩家id
+        /// </summary>
+        private int curSit = 1;
+
+        /// <summary>
+        /// 剩余牌的数量(0算起，共135张) 
+        /// </summary>
+        private int restCardNum = 135;
+
+        /// <summary>
+        /// 游戏数据中介
+        /// </summary>
+        private GameMgrProxy gameMgrProxy;
+        /// <summary>
+        /// 玩家信息中介
+        /// </summary>
+        private PlayerInfoProxy playerInfoProxy;
+
+        private static ClientAIMgr instance;
+        public static ClientAIMgr Instance
+        {
+            get
+            {
+                return instance;
+            }
+        }
+
+        void Awake()
+        {
+            //InitSimulationCard();
+
+            instance = this;
+            battleProxy = ApplicationFacade.Instance.RetrieveProxy(Proxys.BATTLE_PROXY) as BattleProxy;
+            gameMgrProxy = ApplicationFacade.Instance.RetrieveProxy(Proxys.GAMEMGR_PROXY) as GameMgrProxy;
+            playerInfoProxy = ApplicationFacade.Instance.RetrieveProxy(Proxys.PLAYERINFO) as PlayerInfoProxy;
+            Application.logMessageReceived += HandleLog;
+        }
+
+        /// <summary>
+        /// 模拟随机牌（本地）
+        /// </summary>
+        //void InitSimulationCard()
+        //{
+        //    for (int i = 0; i < 13; i++)
+        //    {
+        //        defaultCardIndex[i] = SimulationGetACard();
+        //    }
+        //}
+
+        /// <summary>
+        /// 模拟摸一张（本地）
+        /// </summary>
+        /// <returns></returns>
+        //int SimulationGetACard()
+        //{
+        //    int s = UnityEngine.Random.Range(0, restCardNum);
+        //    int cardNum = cardPool[s];
+        //    cardPool.Remove(s);
+        //    restCardNum--;
+        //    if (restCardNum == 0)
+        //    {
+        //        Debug.LogError("牌已摸完，流局！");
+        //        return 53;//返回白板
+        //    }
+                
+        //    return cardNum;
+        //}
+
+        /// <summary>  
+        /// Records a log from the log callback.  
+        /// </summary>  
+        /// <param name="message">Message.</param>  
+        /// <param name="stackTrace">Trace of where the message came from.</param>  
+        /// <param name="type">Type of message (error, exception, warning, assert).</param>  
+        void HandleLog(string message, string stackTrace, LogType type)
+        {
+            GlobalData.logs.Add(new LogVO
+            {
+                message = message,
+                stackTrace = stackTrace,
+                type = type,
+            });
+
+            if (GlobalData.logs.Count > GlobalData.maxLogs)
+            {
+                GlobalData.logs.RemoveAt(0);
+            }
+        }
+
+        /// <summary>
+        /// 打印接收消息日志
+        /// </summary>
+        /// <param name="bytes"></param>
+        public void ShowReciveMsgLog<T>(T tbuff)
+        {
+            if (tbuff is HallBeatS2C || tbuff is BattleBeatS2C)
+            {
+                return;
+            }
+            GlobalData.logs.Add(new LogVO
+            {
+                message = gameMgrProxy.systemDateTime.ToString("yyyy-MM-dd HH:mm:ss:ffff") + " 接到消息 " + JsonMapper.ToJson(tbuff),
+                stackTrace = "",
+                type = LogType.Log,
+            });
+
+            if (GlobalData.logs.Count > GlobalData.maxLogs)
+            {
+                GlobalData.logs.RemoveAt(0);
+            }
+        }
+
+        /// <summary>
+        /// 打印接收消息日志
+        /// </summary>
+        /// <param name="bytes"></param>
+        public void ShowMsgLog(string tbuff)
+        {
+            if (tbuff == MsgNoC2S.HALL_BEAT_C2S.ToString() || tbuff == MsgNoC2S.BATTLE_BEAT_C2S.ToString())
+            {
+                return;
+            }
+            GlobalData.logs.Add(new LogVO
+            {
+                message = gameMgrProxy.systemDateTime.ToString("yyyy-MM-dd HH:mm:ss:ffff") + " 接到消息 " + tbuff,
+                stackTrace = "",
+                type = LogType.Log,
+            });
+
+            if (GlobalData.logs.Count > GlobalData.maxLogs)
+            {
+                GlobalData.logs.RemoveAt(0);
+            }
+        }
+
+        /// <summary>
+        /// 打印发送消息
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="tbuff"></param>
+        public void ShowSendMsgLog<T>(MsgNoC2S msgNo, T tbuff)
+        {
+            if (msgNo == MsgNoC2S.HALL_BEAT_C2S || msgNo == MsgNoC2S.BATTLE_BEAT_C2S)
+            {
+                return;
+            }
+            GlobalData.logs.Add(new LogVO
+            {
+                message = gameMgrProxy.systemDateTime.ToString("yyyy-MM-dd HH:mm:ss:ffff") + string.Format("发送消息 消息:{0} 消息号:{1} 消息体:{2}", msgNo.ToString(), msgNo.GetHashCode(), JsonMapper.ToJson(tbuff)),
+                stackTrace = "",
+                type = LogType.Log,
+            });
+
+            if (GlobalData.logs.Count > GlobalData.maxLogs)
+            {
+                GlobalData.logs.RemoveAt(0);
+            }
+        }
+
+        /// <summary>
+        /// 本地消息发送回调处理
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="channel"></param>
+        /// <param name="type"></param>
+        /// <param name="tbuff"></param>
+        public void SendBuff<T>(int channel, int type, T tbuff)
+        {
+            if (channel.GetHashCode() == MsgNoC2S.REQUEST_JOINROOM_C2S.GetHashCode())
+            {
+                StartCoroutine(ClientAIMgr.Instance.ClientJoinRoom());
+            }
+            else if (channel.GetHashCode() == MsgNoC2S.DISLOVEAPPLY_C2S.GetHashCode())
+            {
+                var loadInfo = new LoadSceneInfo(ESceneID.SCENE_HALL, LoadSceneType.ASYNC, LoadSceneMode.Additive);
+                ApplicationFacade.Instance.SendNotification(NotificationConstant.MEDI_GAMEMGR_LOADSCENE, loadInfo);
+            }
+            else if (channel.GetHashCode() == MsgNoC2S.READY_C2S.GetHashCode())
+            {
+                curSit = 1;
+                cardPool = new List<int>(GlobalData.CardWare);
+                GameMgr.Instance.StartCoroutine(ClientReady());
+            }
+            else if (channel.GetHashCode() == MsgNoC2S.PLAYAMAHJONG_C2S.GetHashCode())
+            {
+                var putCard = tbuff as PlayAMahjongC2S;
+                GameMgr.Instance.StartCoroutine(ClientPlayAct(putCard.mahjongCode, playerInfoProxy.UserInfo.UserID,
+                    PlayerActType.PUT_CARD));
+            }
+            else if (channel.GetHashCode() == MsgNoC2S.EXIT_C2S.GetHashCode())
+            {
+                var exitS2C = new ExitRoomS2C();
+                exitS2C.clientCode = ErrorCode.SUCCESS;
+                exitS2C.userId = 9527;
+                NetMgr.Instance.OnClientReceiveBuff(MsgNoS2C.EXIT_S2C.GetHashCode(), 0, exitS2C);
+            }
+            else if (channel.GetHashCode() == MsgNoC2S.DISSOLUTION_C2S.GetHashCode())
+            {
+                var disloveS2C = new DissolveRoomS2C();
+                disloveS2C.clientCode = ErrorCode.SUCCESS;
+                NetMgr.Instance.OnClientReceiveBuff(MsgNoS2C.DISSOLUTION_S2C.GetHashCode(), 0, disloveS2C);
+            }
+            else if (channel.GetHashCode() == MsgNoC2S.ZIMOHU_C2S.GetHashCode())
+            {
+                StartCoroutine(HuHandler());
+            }
+            else if (channel.GetHashCode() == MsgNoC2S.PENG_C2S.GetHashCode())
+            {
+                StartCoroutine(PengHandler());
+            }
+            else if (channel.GetHashCode() == MsgNoC2S.SEND_CHAT_C2S.GetHashCode())
+            {
+                SendChatHandler(tbuff as SendChatC2S);
+            }
+            else if (channel.GetHashCode() == MsgNoC2S.SEND_VOICE_C2S.GetHashCode())
+            {
+                SendVoiceHandler(tbuff as SendVoiceC2S);
+            }
+
+        }
+        public IEnumerator PengHandler()
+        {
+            yield return null;
+
+        }
+        public IEnumerator HuHandler()
+        {
+            var pushPlayerActS2C = new PushPlayerActS2C();
+            pushPlayerActS2C.actCard = 17;
+
+            //pushPlayerActS2C.actCard = SimulationGetACard();
+
+            pushPlayerActS2C.userId = 9527;
+            pushPlayerActS2C.act = PlayerActType.SELF_HU;
+            NetMgr.Instance.OnClientReceiveBuff(MsgNoS2C.PUSH_PLAYER_ACT.GetHashCode(), 0, pushPlayerActS2C);
+            yield return new WaitForSeconds(0.1f);
+
+            PushMatchResultS2C matchResultS2C = new PushMatchResultS2C();
+            for (int i = 0; i < GlobalData.SIT_NUM; i++)
+            {
+                var matchResultPlayerVO = new PlayerMatchResultVOS2C();
+                var playerVO = battleProxy.playerSitInfoDic[i + 1];
+                matchResultPlayerVO.userId = playerVO.userId;
+                matchResultPlayerVO.addScore = i == 0 ? 24 : -8;
+                matchResultPlayerVO.handCards.AddRange(playerVO.handCards.ToArray());
+                matchResultS2C.resultInfos.Add(matchResultPlayerVO);
+            }
+            matchResultS2C.huUserId.Add(playerInfoProxy.UserInfo.UserID);
+            NetMgr.Instance.OnClientReceiveBuff(MsgNoS2C.PUSH_MATCH_END.GetHashCode(), 0, matchResultS2C);
+
+            PushRoomResultS2C roomResultS2C = new PushRoomResultS2C();
+            for (int i = 0; i < GlobalData.SIT_NUM; i++)
+            {
+                var roomResultPlayerVO = new PlayerRoomResultVOS2C();
+                var playerVO = battleProxy.playerSitInfoDic[i + 1];
+                roomResultPlayerVO.userId = playerVO.userId;
+                roomResultPlayerVO.addScore = i == 0 ? 24 : -8;
+                roomResultPlayerVO.anGangCount = 0;
+                roomResultPlayerVO.mingGangCount = 0;
+                roomResultPlayerVO.selfHuCount = i == 0 ? 1 : 0;
+                roomResultPlayerVO.otherHuCount = 0;
+                roomResultPlayerVO.sendPaoCount = 0;
+                roomResultS2C.resultInfos.Add(roomResultPlayerVO);
+            }
+            NetMgr.Instance.OnClientReceiveBuff(MsgNoS2C.PUSH_ROOM_END.GetHashCode(), 0, roomResultS2C);
+        }
+
+        /// <summary>
+        /// 模拟进入房间返回
+        /// </summary>
+        public IEnumerator ClientJoinRoom()
+        {
+            playerInfoProxy.UserInfo.UserID = 9527;
+            yield return new WaitForSeconds(1);
+            JoinRoomS2C joinRoomS2C = new JoinRoomS2C();
+            joinRoomS2C.roomCode = UnityEngine.Random.Range(1111, 9999).ToString();
+            joinRoomS2C.curInnings = curInnings;
+            joinRoomS2C.innings = 1;
+            joinRoomS2C.isStart = false;
+            joinRoomS2C.createId = playerInfoProxy.UserInfo.UserID;
+            for (int i = 0; i < GlobalData.SIT_NUM; i++)
+            {
+                var playerInfoVO = new PlayerInfoVOS2C();
+                playerInfoVO.headIcon = "https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/2f98e788b7e5908de9a39ee736";
+                playerInfoVO.isBanker = false;
+                playerInfoVO.isMaster = false;
+                playerInfoVO.userId = 9527 + i;
+                playerInfoVO.isReady = false;
+                playerInfoVO.name = playNames[i];
+                playerInfoVO.score = UnityEngine.Random.Range(1111, 9999);
+                playerInfoVO.sex = 1;
+                playerInfoVO.sit = i + 1;
+                joinRoomS2C.playInfoArr.Add(playerInfoVO);
+            }
+            NetMgr.Instance.OnClientReceiveBuff(MsgNoS2C.JOIN_ROOM_S2C.GetHashCode(), 0, joinRoomS2C);
+            yield return new WaitForSeconds(1);
+            GameMgr.Instance.StartCoroutine(ClientReady());
+        }
+
+        /// <summary>
+        /// 本地模拟准备和发牌
+        /// </summary>
+        private IEnumerator ClientReady()
+        {
+            for (int i = 0; i < GlobalData.SIT_NUM; i++)
+            {
+                PushReadyS2C pushReadyS2C = new PushReadyS2C();
+                pushReadyS2C.userId = 9527 + i;
+                NetMgr.Instance.OnClientReceiveBuff(MsgNoS2C.PUSH_READY.GetHashCode(), 0, pushReadyS2C);
+                yield return new WaitForSeconds(1);
+            }
+            //推送发牌
+            var pushSendCardS2C = new GameStart_S2C();
+            pushSendCardS2C.leftCardCount = GlobalData.CardWare.Length - GlobalData.SENDCARD_NUM;
+            pushSendCardS2C.bankerUserId = 9527;
+            pushSendCardS2C.touchMahjongCode = 19;
+            pushSendCardS2C.currentTimes = battleProxy.curInnings;
+            pushSendCardS2C.handCards.AddRange(defaultCardIndex);
+
+            var pushActTip = new PushPlayerActTipS2C();
+            pushActTip.actCards.Add(19);
+            pushActTip.acts.Add(PlayerActType.PUT_CARD);
+            pushActTip.optUserId = 9527;
+            pushActTip.tipRemainTime = 15;
+            pushActTip.tipRemainUT = gameMgrProxy.systemTime;
+            pushSendCardS2C.pushPlayerActTipS2C = pushActTip;
+            NetMgr.Instance.OnClientReceiveBuff(MsgNoS2C.GAME_START_S2C.GetHashCode(), 0, pushSendCardS2C);
+        }
+
+        /// <summary>
+        /// 模拟操作提示推送
+        /// </summary>
+        private IEnumerator ClientPlayerTip()
+        {
+            var playerInfoVO = battleProxy.playerSitInfoDic[curSit];
+            var playerTipS2C = new PushPlayerActTipS2C();
+            playerTipS2C.optUserId = playerInfoVO.userId;
+            playerTipS2C.acts.Add(PlayerActType.PUT_CARD);
+            playerTipS2C.actCards.Add(playerInfoVO.getCard);
+            if (playerInfoVO.userId == playerInfoProxy.UserInfo.UserID && Method.IsCanHU(playerInfoVO.handCards, playerInfoVO.getCard))
+            {
+                playerTipS2C.acts.Add(PlayerActType.SELF_HU);
+                playerTipS2C.acts.Add(PlayerActType.PASS);
+                playerTipS2C.actCards.Add(playerInfoVO.getCard);
+                playerTipS2C.actCards.Add(playerInfoVO.getCard);
+            }
+            playerTipS2C.tipRemainTime = 15;
+            NetMgr.Instance.OnClientReceiveBuff(MsgNoS2C.PUSH_PLAYER_ACTTIP.GetHashCode(), 0, playerTipS2C);
+            if (playerInfoVO.userId != playerInfoProxy.UserInfo.UserID)//非自己的提示自动操作
+            {
+                yield return new WaitForSeconds(3);
+                StartCoroutine(ClientPlayAct(playerInfoVO.getCard, playerInfoVO.userId, PlayerActType.PUT_CARD));
+            }
+        }
+
+        /// <summary>
+        /// 模拟本地动作
+        /// </summary>
+        private IEnumerator ClientPlayAct(int actCard, int userId, PlayerActType act)
+        {
+            var pushPlayerActS2C = new PushPlayerActS2C();
+            pushPlayerActS2C.actCard = actCard;
+            pushPlayerActS2C.userId = userId;
+            pushPlayerActS2C.act = act;
+            NetMgr.Instance.OnClientReceiveBuff(MsgNoS2C.PUSH_PLAYER_ACT.GetHashCode(), 0, pushPlayerActS2C);
+            yield return new WaitForSeconds(1);
+            curSit = GlobalData.GetNextSit(curSit, 1);
+
+            if (act == PlayerActType.PUT_CARD)
+            {
+                int getCard = getRangeCard(false);
+                var getCardS2C = new PushPlayerActS2C();
+                getCardS2C.actCard = getCard;
+                getCardS2C.userId = battleProxy.playerSitInfoDic[curSit].userId;
+                getCardS2C.act = PlayerActType.GET_CARD;
+                NetMgr.Instance.OnClientReceiveBuff(MsgNoS2C.PUSH_PLAYER_ACT.GetHashCode(), 0, getCardS2C);
+                yield return new WaitForSeconds(1);
+                GameMgr.Instance.StartCoroutine(ClientPlayerTip());
+            }
+            else
+            {
+                yield return new WaitForSeconds(1);
+                GameMgr.Instance.StartCoroutine(ClientPlayerTip());
+            }
+        }
+
+        /// <summary>
+        /// 模拟客户端发送聊天
+        /// </summary>
+        /// <param name="chat"></param>
+        private void SendChatHandler(SendChatC2S chat)
+        {
+            var pushChat = new PushSendChatS2C();
+            pushChat.senderUserId = playerInfoProxy.UserInfo.UserID;
+            pushChat.content = chat.content;
+            NetMgr.Instance.OnClientReceiveBuff(MsgNoS2C.PUSH_CHAT.GetHashCode(), 0, pushChat);
+        }
+
+        private void SendVoiceHandler(SendVoiceC2S chat)
+        {
+            var pushChat = new PushVoiceS2C();
+            pushChat.senderUserId = playerInfoProxy.UserInfo.UserID;
+            pushChat.content = chat.content;
+            pushChat.flag = chat.flag;
+            NetMgr.Instance.OnClientReceiveBuff(MsgNoS2C.PUSH_VOICE.GetHashCode(), 0, pushChat);
+        }
+
+        /// <summary>
+        /// 随机出一张牌
+        /// </summary>
+        /// <returns></returns>
+        private int getRangeCard(bool isSendCard)
+        {
+            if (isSendCard)
+            {
+                int randomIndex = UnityEngine.Random.Range(0, cardPool.Count - 1);
+                int getCard = cardPool[randomIndex];
+                while (getCard == 17)
+                {
+                    randomIndex = UnityEngine.Random.Range(0, cardPool.Count - 1);
+                    getCard = cardPool[randomIndex];
+                }
+                cardPool.RemoveAt(randomIndex);
+                return getCard;
+                //return SimulationGetACard();
+            }
+            else
+            {
+                if (curSit == 1)
+                {
+                    float randomValue = UnityEngine.Random.Range(0f, 1f);
+                    if (randomValue > 0)
+                    {
+                        cardPool.Remove(17);
+                        return 11;
+                    }
+                    else
+                    {
+                        int randomIndex = UnityEngine.Random.Range(0, cardPool.Count - 1);
+                        int getCard = cardPool[randomIndex];
+                        cardPool.RemoveAt(randomIndex);
+                        return 11;// getCard;
+                    }
+                    //return SimulationGetACard();
+                }
+                else
+                {
+                    int randomIndex = UnityEngine.Random.Range(0, cardPool.Count - 1);
+                    int getCard = cardPool[randomIndex];
+                    while (getCard == 17)
+                    {
+                        randomIndex = UnityEngine.Random.Range(0, cardPool.Count - 1);
+                        getCard = cardPool[randomIndex];
+                    }
+                    cardPool.RemoveAt(randomIndex);
+                    return 11;// getCard;
+                    //return SimulationGetACard();
+                }
+            }
+        }
+
+        /// <summary>
+        /// 客户端模拟播放战报
+        /// </summary>
+        public void PlayReport()
+        {
+            playerInfoProxy.UserInfo.UserID = 100763;
+
+            var joinInfo = new JoinRoomS2C();
+            joinInfo.createId = 100780;
+            joinInfo.curInnings = 1;
+            joinInfo.innings = 8;
+            joinInfo.isStart = true;
+            joinInfo.roomCode = "319851";
+
+            var playerInfoVO = new PlayerInfoVOS2C();
+            playerInfoVO.headIcon = "http://picture.youth.cn/xwjx/201705/W020170506391821287688.png";
+            playerInfoVO.userId = 100763;
+            playerInfoVO.name = "时间";
+            playerInfoVO.score = 0;
+            playerInfoVO.sex = 1;
+            playerInfoVO.sit = 3;
+            playerInfoVO.isBanker = false;
+            playerInfoVO.isMaster = false;
+            playerInfoVO.isReady = true;
+            int[] handCards = { 13, 15, 21, 23, 23, 25, 26, 26, 27, 29, 33, 35, 36 };
+            playerInfoVO.handCards.AddRange(handCards);
+            joinInfo.playInfoArr.Add(playerInfoVO);
+
+            playerInfoVO = new PlayerInfoVOS2C();
+            playerInfoVO.headIcon = "http://picture.youth.cn/xwjx/201705/W020170506391821287688.png";
+            playerInfoVO.userId = 100764;
+            playerInfoVO.name = "电话";
+            playerInfoVO.score = UnityEngine.Random.Range(1111, 9999);
+            playerInfoVO.sex = 1;
+            playerInfoVO.sit = 2;
+            playerInfoVO.isBanker = false;
+            playerInfoVO.isMaster = false;
+            playerInfoVO.isReady = true;
+            int[] handCards2 = { 12, 14, 16, 16, 17, 26, 26, 28, 29, 31, 34, 38, 39 };
+            playerInfoVO.handCards.AddRange(handCards2);
+            joinInfo.playInfoArr.Add(playerInfoVO);
+
+            playerInfoVO = new PlayerInfoVOS2C();
+            playerInfoVO.headIcon = "http://picture.youth.cn/xwjx/201705/W020170506391821287688.png";
+            playerInfoVO.userId = 100773;
+            playerInfoVO.name = "多少";
+            playerInfoVO.score = UnityEngine.Random.Range(1111, 9999);
+            playerInfoVO.sex = 1;
+            playerInfoVO.sit = 4;
+            playerInfoVO.isBanker = false;
+            playerInfoVO.isMaster = false;
+            playerInfoVO.isReady = true;
+            int[] handCards3 = { 11, 12, 16, 19, 22, 23, 24, 25, 33, 34, 35, 36, 39 };
+            playerInfoVO.handCards.AddRange(handCards3);
+            joinInfo.playInfoArr.Add(playerInfoVO);
+
+            playerInfoVO = new PlayerInfoVOS2C();
+            playerInfoVO.headIcon = "http://picture.youth.cn/xwjx/201705/W020170506391821287688.png";
+            playerInfoVO.userId = 100780;
+            playerInfoVO.name = "学姐2";
+            playerInfoVO.score = UnityEngine.Random.Range(1111, 9999);
+            playerInfoVO.sex = 1;
+            playerInfoVO.sit = 1;
+            playerInfoVO.isBanker = true;
+            playerInfoVO.isMaster = true;
+            playerInfoVO.isReady = true;
+            int[] handCards4 = { 11, 13, 14, 25, 27, 28, 33, 34, 36, 37, 37, 37, 38 };
+            playerInfoVO.handCards.AddRange(handCards4);
+            joinInfo.playInfoArr.Add(playerInfoVO);
+
+            joinInfo.playerTipAct = new PushPlayerActTipS2C();
+            joinInfo.playerTipAct.optUserId = 100780;
+            joinInfo.playerTipAct.acts.Add(PlayerActType.PUT_CARD);
+            joinInfo.playerTipAct.actCards.Add(14);
+            joinInfo.playerTipAct.tipRemainTime = 15;
+            joinInfo.playerTipAct.tipRemainUT = 1495873615422;
+
+            NetMgr.Instance.OnClientReceiveBuff(MsgNoS2C.JOIN_ROOM_S2C.GetHashCode(), 0, joinInfo);
+        }
+    }
+}

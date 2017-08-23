@@ -1,0 +1,45 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using PureMVC.Interfaces;
+using PureMVC.Patterns;
+using UnityEngine;
+using System.Collections;
+
+public class ShoppingMediator : Mediator, IMediator
+{
+    public ShoppingMediator(string NAME, object viewComponent):base(NAME,viewComponent)
+    {
+
+    }
+
+    public ShoppingView View
+    {
+        get
+        {
+            return (ShoppingView)ViewComponent;
+        }
+    }
+
+    public override void OnRegister()
+    {
+        base.OnRegister();
+        this.View.ButtonAddListening(this.View.CloseButton,
+        () =>
+        {
+            UIManager.Instance.HideUI(UIViewID.SHOPPING_VIEW);
+        });
+        ArrayList datas = new ArrayList();
+        datas.Add(new ShoppingScrollData("1账房卡", "shop_button_1@2x"));
+        datas.Add(new ShoppingScrollData("6账房卡", "shop_button_2@2x"));
+        datas.Add(new ShoppingScrollData("13账房卡", "shop_button_3@2x"));
+        View.TableView.DataProvider = datas;
+    }
+    public override void OnRemove()
+    {
+        base.OnRemove();
+        UIManager.Instance.DestroyUI(UIViewID.SHOPPING_VIEW);
+    }
+}
+

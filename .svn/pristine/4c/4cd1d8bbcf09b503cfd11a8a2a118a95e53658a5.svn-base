@@ -1,0 +1,164 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+/// <summary>
+/// 顶部按钮
+/// </summary>
+public class TopMenuView : UIView
+{
+    /// <summary>
+    /// 头像
+    /// </summary>
+    private RawImage photo;
+    /// <summary>
+    /// 用户名
+    /// </summary>
+    private Text username;
+    /// <summary>
+    /// 房卡
+    /// </summary>
+    private Text roomCardText;
+    /// <summary>
+    /// 头像按钮
+    /// </summary>
+    private Button photoButton;
+    /// <summary>
+    /// 购买按钮
+    /// </summary>
+    private Button roomCardButton;
+    /// <summary>
+    /// 签到按钮
+    /// </summary>
+    private Button signinButton;
+    /// <summary>
+    /// 帮助按钮
+    /// </summary>
+    private Button helpButton;
+    /// <summary>
+    /// 返回登陆界面按钮
+    /// </summary>
+    private Button backButton;
+
+    public Button PhotoButton
+    {
+        get
+        {
+            return photoButton;
+        }
+
+        set
+        {
+            photoButton = value;
+        }
+    }
+
+    public Button RoomCardButton
+    {
+        get
+        {
+            return roomCardButton;
+        }
+
+        set
+        {
+            roomCardButton = value;
+        }
+    }
+
+    public Button SigninButton
+    {
+        get
+        {
+            return signinButton;
+        }
+
+        set
+        {
+            signinButton = value;
+        }
+    }
+
+    public Button HelpButton
+    {
+        get
+        {
+            return helpButton;
+        }
+
+        set
+        {
+            helpButton = value;
+        }
+    }
+
+    public Button BackButton
+    {
+        get
+        {
+            return backButton;
+        }
+
+        set
+        {
+            backButton = value;
+        }
+    }
+    public RawImage Photo
+    {
+        get
+        {
+            return photo;
+        }
+
+        set
+        {
+            photo = value;
+        }
+    }
+    public Text Username
+    {
+        get
+        {
+            return username;
+        }
+
+        set
+        {
+            username = value;
+        }
+    }
+
+    public Text RoomCardText
+    {
+        get
+        {
+            return roomCardText;
+        }
+
+        set
+        {
+            roomCardText = value;
+        }
+    }
+
+
+
+    public override void OnInit()
+    {
+        this.ViewRoot = this.LaunchUIView("Prefab/UI/Hall/TopMenuView", UIManager.Instance.GetUIView(UIViewID.HALL_VIEW).ViewRoot.transform);
+        this.Photo = this.ViewRoot.transform.FindChild("UserInfo").FindChild("PhotoMask").FindChild("Photo").GetComponent<RawImage>();
+        this.PhotoButton = this.ViewRoot.transform.FindChild("UserInfo").FindChild("PhotoMask").FindChild("Photo").GetComponent<Button>();
+        this.Username = this.ViewRoot.transform.FindChild("UserInfo").FindChild("NameText").GetComponent<Text>();
+        this.RoomCardText = this.ViewRoot.transform.FindChild("UserInfo").FindChild("RoomCardText").GetComponent<Text>();
+        this.RoomCardButton = this.ViewRoot.transform.FindChild("UserInfo").FindChild("RoomCardButton").GetComponent<Button>();
+        this.SigninButton = this.ViewRoot.transform.FindChild("Buttons").FindChild("SigninButton").GetComponent<Button>();
+        this.HelpButton = this.ViewRoot.transform.FindChild("Buttons").FindChild("HelpButton").GetComponent<Button>();
+        this.BackButton = this.ViewRoot.transform.FindChild("Buttons").FindChild("BackButton").GetComponent<Button>();
+    }
+    public override void OnRegister()
+    {
+        this.ViewRootCache = Resources.Load<GameObject>("Prefab/UI/Hall/TopMenuView");
+    }
+}

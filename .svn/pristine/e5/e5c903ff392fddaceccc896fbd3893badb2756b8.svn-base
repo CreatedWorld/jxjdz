@@ -1,0 +1,115 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using Platform.Model;
+using System;
+/// <summary>
+/// 对战信息View
+/// </summary>
+public class ParticularsScrollView : TableViewItem {
+    /// <summary>
+    /// 是否初始化
+    /// </summary>
+    private bool isInit;
+    
+    /// <summary>
+    /// 房间号
+    /// </summary>
+    private Text roomNumText;
+    
+    /// <summary>
+    /// 时间
+    /// </summary>
+    private Text time;
+
+    /// <summary>
+    /// 输赢结果
+    /// </summary>
+    private Image resulteImg;
+
+    /// <summary>
+    /// 分数
+    /// </summary>
+    private Text score;
+
+    /// <summary>
+    /// 对战信息数据
+    /// </summary>
+    private ParticularsScrollData particularsScrollData;
+
+    public bool IsInit
+    {
+        get
+        {
+            return isInit;
+        }
+
+        set
+        {
+            isInit = value;
+        }
+    }
+
+    public Button PlaybackButton
+    {
+        get
+        {
+            return PlaybackButton;
+        }
+    }
+
+    public GradeDataS2C gradeData;
+    
+    public ParticularsScrollView()
+    {
+        this.IsInit = false;
+    }
+    public override void Updata(object data)
+    {
+        if (data == null)
+        {
+            return;
+        }
+        base.Updata(data);
+        //this.particularsScrollData = (ParticularsScrollData)data;
+        gradeData = (GradeDataS2C)data;
+        if (gradeData.score>0)
+        {
+            resulteImg.sprite = Resources.Load<Sprite>("Textures/UI/赢");
+            score.text = "+" + gradeData.score;
+            score.color = new Color(255,241,0);
+        }
+        if (gradeData.score < 0)
+        {
+            resulteImg.sprite = Resources.Load<Sprite>("Textures/UI/输");
+            score.text = "" + gradeData.score;
+            score.color = new Color(0, 171, 255);
+        }
+        if (gradeData.score == 0)
+        {
+            resulteImg.sprite = Resources.Load<Sprite>("Textures/UI/平");
+            score.text = "0";
+            score.color = new Color(0, 255, 0);
+        }
+        roomNumText.text = gradeData.roomCode;
+        time.text = SwitchTime(gradeData.time);
+        ApplicationFacade.Instance.SendNotification(NotificationConstant.MEDI_HALL_PARTICEVENT, this);
+    }
+
+    private void Awake()
+    {
+        if (!this.IsInit)
+        {
+            resulteImg = transform.FindChild("Result").GetComponent<Image>();
+            roomNumText = transform.FindChild("RoomNumText").GetComponent<Text>();
+            time = transform.FindChild("RoundTime").GetComponent<Text>();
+            score = transform.FindChild("ScoreText").GetComponent<Text>() ;
+        }
+    }
+    private static String SwitchTime(long t)
+    {
+        DateTime dt = TimeHandle.Instance.GetDateTimeByTimestamp(t);
+        return dt.ToString("yyyy-mm-dd hh:mm");
+    }
+}

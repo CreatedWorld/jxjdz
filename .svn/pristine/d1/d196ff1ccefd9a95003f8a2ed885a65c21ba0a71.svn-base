@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="center" />
+        <module name="clientTest" />
+        <module name="ext" />
+        <module name="room" />
+      </profile>
+      <profile name="Annotation profile for login" enabled="true">
+        <sourceOutputDir name="../deploy/login/generated-sources/annotations" />
+        <sourceTestOutputDir name="../deploy/login/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="login" />
+      </profile>
+      <profile name="Annotation profile for framework" enabled="true">
+        <sourceOutputDir name="../deploy/framework/generated-sources/annotations" />
+        <sourceTestOutputDir name="../deploy/framework/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="CoreService" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="agent" target="1.8" />
+      <module name="center" target="1.8" />
+      <module name="clientTest" target="1.8" />
+      <module name="CoreService" target="1.8" />
+      <module name="ext" target="1.8" />
+      <module name="login" target="1.8" />
+      <module name="qmmj.login" target="1.8" />
+      <module name="room" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

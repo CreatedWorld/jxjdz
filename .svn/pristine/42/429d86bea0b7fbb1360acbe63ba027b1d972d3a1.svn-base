@@ -1,0 +1,1 @@
+java -Dfile.encoding=utf-8 -jar Excel2Cmd.jar E:\SVNCheckout\jxjdz\proto api E:\SVNCheckout\jxjdz\server\Common\src\main\java\avatar\protobuf

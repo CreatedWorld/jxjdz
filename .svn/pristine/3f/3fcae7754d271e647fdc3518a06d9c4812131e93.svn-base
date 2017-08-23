@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../proto/ProtoFile" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../CenterService" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../ExtService" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../LoginService" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../RoomService" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../clientTest" vcs="svn" />
+  </component>
+</project>

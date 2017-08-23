@@ -1,0 +1,105 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using Platform.Model;
+/// <summary>
+/// 对战信息View
+/// </summary>
+public class ParticularsScrollView : TableViewItem {
+    /// <summary>
+    /// 是否初始化
+    /// </summary>
+    private bool isInit;
+    /// <summary>
+    /// 返回按钮
+    /// </summary>
+    private Button playbackButton;
+    /// <summary>
+    /// 房间号
+    /// </summary>
+    private Text roomNumText;
+    /// <summary>
+    /// 回合
+    /// </summary>
+    private Text roundNumText;
+    /// <summary>
+    /// 时间
+    /// </summary>
+    private Text time;
+    /// <summary>
+    /// 参赛者信息
+    /// </summary>
+    private List<Text> userNames;
+    /// <summary>
+    /// 对战信息数据
+    /// </summary>
+    private ParticularsScrollData particularsScrollData;
+
+    public bool IsInit
+    {
+        get
+        {
+            return isInit;
+        }
+
+        set
+        {
+            isInit = value;
+        }
+    }
+
+    public Button PlaybackButton
+    {
+        get
+        {
+            return playbackButton;
+        }
+    }
+
+    public ParticularsScrollData ParticularsScrollData
+    {
+        get
+        {
+            return particularsScrollData;
+        }
+    }
+
+    public ParticularsScrollView()
+    {
+        this.IsInit = false;
+    }
+    public override void Updata(object data)
+    {
+        if (data == null)
+        {
+            return;
+        }
+        base.Updata(data);
+        this.particularsScrollData = (ParticularsScrollData)data;
+        this.roundNumText.text = "第" + ParticularsScrollData.ScrollID.ToString() + "局";
+        this.roomNumText.text = this.ParticularsScrollData.RoomCode;
+        this.time.text = TimeHandle.Instance.GetDateTimeByTimestamp(this.ParticularsScrollData.Time).ToString("yy-MM-dd HH:mm:ss");
+        for (int i = 0; i < this.ParticularsScrollData.UsersInfo.Count ; i++)
+        {
+            this.userNames[i].text = this.ParticularsScrollData.UsersInfo[i].userName + ":" + this.ParticularsScrollData.UsersInfo[i].score.ToString();
+        }
+        ApplicationFacade.Instance.SendNotification(NotificationConstant.MEDI_HALL_PARTICEVENT, this);
+    }
+
+    private void Awake()
+    {
+        if (!this.IsInit)
+        {
+            this.roomNumText = this.transform.FindChild("RoomNumText").GetComponent<Text>();
+            this.roundNumText = this.transform.FindChild("RoundNum").GetComponent<Text>();
+            this.time = this.transform.FindChild("RoundTime").GetComponent<Text>();
+            this.playbackButton = this.transform.FindChild("PlaybackButton").GetComponent<Button>();
+            this.userNames = new List<Text>();
+            foreach (Transform particularsInfo in this.transform.FindChild("Players"))
+            {
+                this.userNames.Add(particularsInfo.GetComponent<Text>());
+            }
+        }
+    }
+}

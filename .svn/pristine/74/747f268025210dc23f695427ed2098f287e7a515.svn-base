@@ -1,0 +1,116 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+/// <summary>
+/// 战绩信息View
+/// </summary>
+public class GradeScrollView : TableViewItem {
+    /// <summary>
+    /// 是否初始化
+    /// </summary>
+    private bool isInit;
+    /// <summary>
+    /// 房间ID
+    /// </summary>
+    private int roomID;
+    /// <summary>
+    /// 序号
+    /// </summary>
+    private Text rankingID;
+    /// <summary>
+    /// 显示房间号
+    /// </summary>
+    private Text roomCode;
+    /// <summary>
+    /// 时间
+    /// </summary>
+    private Text time;
+    /// <summary>
+    /// 参赛者名字控件集合
+    /// </summary>
+    private List<Text> userNames;
+    /// <summary>
+    /// 选择按钮
+    /// </summary>
+    private Button selectButton;
+    /// <summary>
+    /// 当前条目数据
+    /// </summary>
+    private GradeScrollData scrollViewData;
+    public GradeScrollView()
+    {
+        this.IsInit = false;
+    }
+    public GradeScrollData ScrollViewData
+    {
+        get
+        {
+            return scrollViewData;
+        }
+    }
+
+    public Button SelectButton
+    {
+        get
+        {
+            return selectButton;
+        }
+    }
+
+    public int RoomID
+    {
+        get
+        {
+            return roomID;
+        }
+    }
+
+    public bool IsInit
+    {
+        get
+        {
+            return isInit;
+        }
+
+        set
+        {
+            isInit = value;
+        }
+    }
+
+    public override void Updata(object data)
+    {
+        if (data == null)
+        {
+            return;
+        }
+        base.Updata(data);
+        this.scrollViewData = (GradeScrollData)data;
+        this.roomID = ScrollViewData.RoomID;
+        this.rankingID.text = (this.ScrollViewData.RankingID + 1).ToString();
+        this.roomCode.text = this.ScrollViewData.RoomCode;
+        this.time.text = TimeHandle.Instance.GetDateTimeByTimestamp(this.ScrollViewData.Time).ToString("yy-MM-dd HH:mm:ss");
+        for (int i = 0;i < this.ScrollViewData.UsersInfo.Count ;i++)
+        {
+            this.userNames[i].text = this.ScrollViewData.UsersInfo[i].userName + ":" + this.ScrollViewData.UsersInfo[i].score.ToString();
+        };
+        ApplicationFacade.Instance.SendNotification(NotificationConstant.MEDI_HALL_GRADEADDEVENT,this);
+    }
+
+    private void Awake()
+    {
+        if (!this.IsInit)
+        {
+            this.rankingID = this.transform.FindChild("RankingText").GetComponent<Text>();
+            this.roomCode = this.transform.FindChild("RoomNumText").GetComponent<Text>();
+            this.time = this.transform.FindChild("TimeText").GetComponent<Text>();
+            this.selectButton = this.transform.FindChild("SelectButton").GetComponent<Button>();
+            userNames = new List<Text>();
+            foreach (Transform playerInfo in this.transform.FindChild("Players"))
+            {
+                this.userNames.Add(playerInfo.GetComponent<Text>());
+            }
+        }
+    }
+}

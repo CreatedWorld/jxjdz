@@ -1,0 +1,161 @@
+//处理所有内部系统通信协议
+
+option java_package = "avatar.protobuf";  
+option java_outer_classname = "SysInner";
+
+//停止服务器命令
+message InnerStopC2S{
+
+}
+
+message InnerStopS2C{
+
+}
+
+//内部服务器心跳连接
+message InnerHeartC2S{
+	required int32 clientPort=1;//客户端端口
+	required string clientIp=2;//客户端ip
+	required string remoteServerName=3;//远程服务器名称
+	required string clientName=4;//本客户端的名称
+	required string proxyName=5;//本客户端的别名。例如：hallServer2
+}
+
+message InnerHeartS2C{
+	required int32 state=1;// 
+}
+
+
+//内部服务器握手连接
+message InnerLinkC2S{
+	required string clientName=1;//客户端名称
+	required string clientLocalName=2;//客户端别名。例如hallServer2
+}
+
+message InnerLinkS2C{
+	required string serverName=1;//服务器名称
+}
+
+//大厅询问中心服务器创建房间信息
+message InnerCreateRoomHall2Center{
+	required int32 userId=1;//用户id
+	required int32 roomType=2;//创建房间的类型
+	required int32 roomRounds=3;//局数
+	repeated int32 playType=4;//房间的玩法集合
+	optional int32 seat=5;//座位号
+}
+
+//中心服务器响应回去给大厅服务器询问创建房间的信息
+message InnerCreateRoomCenter2Hall{
+	required int32 userId=1;//用户id
+	required int32 clientCode=2;//错误码
+	required int32 roomType=3;//创建房间的类型
+	required int32 roomRounds=4;//回合数
+	optional int32 seat=5;//座位号
+
+	optional string roomCode=6;//房间id
+	optional string roomServerIp=7;//房间服务器地址
+	optional int32 roomServerPort=8;//房间服务器端口
+}
+
+//大厅服务器询问中心服务器加入房间请求
+message InnerJoinInRoomHall2Center{
+	required int32 userId = 1;//用户id
+	required string roomCode = 2;//房间号
+	required int32 seat=3;//座位号
+}
+
+//加入房间
+message InnerJoinInRoomCenter2Hall{
+    required int32 userId=1;//用户id
+	required int32 clientCode=2;//错误码
+	required int32 roomType=3;//加入的房间的类型
+
+	optional string roomCode=4;//房间id
+    optional string roomServerIp=5;//房间服务器地址
+    optional int32 roomServerPort=6;//房间服务器端口
+	optional int32 rounds = 7;//局数
+	optional int32 seat = 8;//座位号
+	
+}
+
+message InnerJoinInRoomCenter2Room{
+    required int32 userId=1;//用户id
+	required int32 roomType=2;//加入的房间的类型
+	required string roomCode=3;//房间id
+	required int32 seat = 4;//座位号
+	required string roomServerIp=5;//房间服务器地址
+    required int32 roomServerPort=6;//房间服务器端口
+	required int32 rounds = 7;//局数
+	required int32 roomId=8;//加入的房间的id
+	required string roomServerLocalName=9;//房间服务器的别名
+}
+
+//解散房间
+message InnerDissolveRoom2Center{
+	required int32 userId=1;//创建者id
+}
+
+message InnerDissolveCenter2Room{
+	required int32 userId=1;//创建者id
+	optional int32 roomId=2;//房间id
+	repeated int32 memberIds=3;//当前房间所有用户id
+	required int32 clientCode = 4;//操作结果
+	required bool isStart=5;//房间是否已经开始游戏
+}
+
+
+//退出房间
+message InnerExitRoom2Center{
+	required int32 userId=1;//退出房间的用户的id
+}
+
+message InnerExitCenter2Room{
+	required int32 userId=1;//退出房间的用户的id
+	required int32 clientCode = 2;//操作结果
+	repeated int32 memberIds=3;//当前房间所有用户id
+	optional bool allExit=4;//是否玩家都全部退出房间
+	optional int32 roomId=5;//房间id
+}
+
+
+//-23大厅服务器发送给中心服务器匹配房间请求
+message InnerMatchHall2Center{
+	required int32 userId=1;//玩家id
+	required int32 roomType=2;//房间类型
+	required int32 roomRounds=3;//房间局数
+	required string hallServerLocalName=4;//玩家所处的大厅服务器别名
+}
+
+//-24中心服务器返回给大厅服务器匹配房间
+message InnerMatchCenter2Hall{
+	required int32 clientCode=1;//操作结果
+	required int32 userId=2;//玩家id
+}
+
+//-25大厅服务器发送给中心服务器取消匹配房间请求
+message InnerCancelMatchHall2Center{
+	required int32 userId=1;//玩家id
+	required int32 roomType=2;//房间类型
+	required int32 roomRounds=3;//房间局数
+	required string hallServerLocalName=4;//玩家所处大厅服务器别名
+}
+
+//-26中心服务器返回给大厅服务器取消匹配房间
+message InnerCancelMatchCenter2Hall{
+	required int32 userId=1;//玩家id
+	required int32 clientCode = 2;//操作结果
+}
+
+//-27中心服务器处理完玩家的匹配，推送给各自大厅处理玩家加入房间消息
+message InnerMatchSucCenter2Hall{
+	required int32 roomId = 1;//房间id
+	required string roomCode = 2;//房间号
+	required int32 roomType = 3;//房间类型
+	required int32 roomRounds = 4;//房间局数
+	required string roomServerIp=5;//分配到的房间的服务器的ip
+	required int32 roomServerPort=6;//分配到的房间服务器的端口
+	required int32 seat=7;//分配到的座位号
+	required int32 userId=8;//玩家id
+}
+

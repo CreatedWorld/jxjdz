@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../Common" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../CoreService" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../ExtService" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../LoginService" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../RoomService" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../tuotuo/CoreService" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../tuotuo/ExtService" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../tuotuo/LoginService" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../tuotuo/RoomService" charset="UTF-8" />
+  </component>
+</project>

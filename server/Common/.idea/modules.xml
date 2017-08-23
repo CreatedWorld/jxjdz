@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/CoreService.iml" filepath="$PROJECT_DIR$/CoreService.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../proto/ProtoFile/ProtoFile.iml" filepath="$PROJECT_DIR$/../../proto/ProtoFile/ProtoFile.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../CenterService/center.iml" filepath="$PROJECT_DIR$/../CenterService/center.iml" />
+      <module fileurl="file://F:\work\server\qmmj\qmmj\CenterService\center.iml" filepath="F:\work\server\qmmj\qmmj\CenterService\center.iml" />
+      <module fileurl="file://F:\work\server\JavaCoreFramework\CenterService\center.iml" filepath="F:\work\server\JavaCoreFramework\CenterService\center.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../clientTest/clientTest.iml" filepath="$PROJECT_DIR$/../clientTest/clientTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../ExtService/ext.iml" filepath="$PROJECT_DIR$/../ExtService/ext.iml" />
+      <module fileurl="file://F:\work\server\JavaCoreFramework\ExtService\ext.iml" filepath="F:\work\server\JavaCoreFramework\ExtService\ext.iml" />
+      <module fileurl="file://F:\work\server\qmmj\qmmj\ExtService\ext.iml" filepath="F:\work\server\qmmj\qmmj\ExtService\ext.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../LoginService/login.iml" filepath="$PROJECT_DIR$/../LoginService/login.iml" />
+      <module fileurl="file://F:\work\server\JavaCoreFramework\LogicService\login.iml" filepath="F:\work\server\JavaCoreFramework\LogicService\login.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../RoomService/room.iml" filepath="$PROJECT_DIR$/../RoomService/room.iml" />
+      <module fileurl="file://F:\work\server\qmmj\qmmj\RoomService\room.iml" filepath="F:\work\server\qmmj\qmmj\RoomService\room.iml" />
+      <module fileurl="file://F:\work\server\JavaCoreFramework\RoomService\room.iml" filepath="F:\work\server\JavaCoreFramework\RoomService\room.iml" />
+    </modules>
+  </component>
+</project>

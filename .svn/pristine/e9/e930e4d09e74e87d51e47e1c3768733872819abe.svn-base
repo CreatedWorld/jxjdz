@@ -1,0 +1,57 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using DG.Tweening;
+
+public class RankingView : UIView {
+
+    private Button closeButton;
+
+    /// <summary>
+    /// 排行关闭按钮
+    /// </summary>
+    public Button CloseButton
+    {
+        get
+        {
+            return closeButton;
+        }
+
+        set
+        {
+            closeButton = value;
+        }
+    }
+
+    public override void OnInit()
+    {
+        this.ViewRoot = this.LaunchUIView("Prefab/UI/Ranking/RankingView");
+        this.CloseButton = this.ViewRoot.transform.FindChild("CloseButton").GetComponent<Button>();
+        ApplicationFacade.Instance.RegisterMediator(new RankingMediator(Mediators.HALL_RANKING,this));
+    }
+
+    public override void OnDestroy()
+    {
+        base.OnDestroy();
+        ApplicationFacade.Instance.RemoveMediator(Mediators.HALL_RANKING);
+    }
+
+    public override void OnRegister()
+    {
+        this.ViewRootCache = Resources.Load<GameObject>("Prefab/UI/Ranking/RankingView");
+    }
+
+    public override void OnShow()
+    {
+        base.OnShow();
+        UIManager.Instance.ShowUIMask(UIViewID.RANKING_VIEW);
+        this.ViewRoot.GetComponent<Animator>().Play("RankingShow");
+    }
+
+    public override void OnHide()
+    {
+        this.ViewRoot.GetComponent<Animator>().Play("RankingHide");
+    }
+}

@@ -1,0 +1,5 @@
+avatar\LoginServer.class
+avatar\apiregister\login\LoginApi.class
+avatar\module\login\LoginService.class
+avatar\LoginInit.class
+avatar\InitLoginDBConfig.class

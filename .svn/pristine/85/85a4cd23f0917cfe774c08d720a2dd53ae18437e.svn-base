@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/CenterService.iml" filepath="$PROJECT_DIR$/CenterService.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Common/Common.iml" filepath="$PROJECT_DIR$/../Common/Common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../ExtService/ext.iml" filepath="$PROJECT_DIR$/../ExtService/ext.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Common/framework.iml" filepath="$PROJECT_DIR$/../Common/framework.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../LoginService/login.iml" filepath="$PROJECT_DIR$/../LoginService/login.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../RoomService/room.iml" filepath="$PROJECT_DIR$/../RoomService/room.iml" />
+    </modules>
+  </component>
+</project>

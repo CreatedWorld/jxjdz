@@ -1,0 +1,1 @@
+java -Dfile.encoding=utf-8 -jar Excel2CmdFilter.jar F:\FileRecv api F:\filerecv

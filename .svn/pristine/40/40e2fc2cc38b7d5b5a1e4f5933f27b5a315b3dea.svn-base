@@ -1,0 +1,147 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+/// <summary>
+/// 设置View
+/// </summary>
+public class SettingView : UIView
+{
+    /// <summary>
+    /// 关闭按钮
+    /// </summary>
+    private Button closeButton;
+    /// <summary>
+    /// 切换账号按钮
+    /// </summary>
+    private Button switchAccountButton;
+    /// <summary>
+    /// 用户头像
+    /// </summary>
+    private RawImage userPhoto;
+    /// <summary>
+    /// 角色名称
+    /// </summary>
+    public Text UserName;
+    /// <summary>
+    /// 音效按钮
+    /// </summary>
+    private Toggle soundToggle;
+    /// <summary>
+    /// 音乐按钮
+    /// </summary>
+    private Toggle musicToggle;
+    public Button CloseButton
+    {
+        get
+        {
+            return closeButton;
+        }
+
+        set
+        {
+            closeButton = value;
+        }
+    }
+    public Button SwitchAccountButton
+    {
+        get
+        {
+            return switchAccountButton;
+        }
+
+        set
+        {
+            switchAccountButton = value;
+        }
+    }
+
+    public RawImage UserPhoto
+    {
+        get
+        {
+            return userPhoto;
+        }
+
+        set
+        {
+            userPhoto = value;
+        }
+    }
+
+    public Toggle SoundToggle
+    {
+        get
+        {
+            return soundToggle;
+        }
+    }
+
+    public Toggle MusicToggle
+    {
+        get
+        {
+            return musicToggle;
+        }
+    }
+
+    public override void OnInit()
+    {
+        this.ViewRoot = this.LaunchUIView("Prefab/UI/Setting/SettingView");
+        this.CloseButton = this.ViewRoot.transform.FindChild("CloseButton").GetComponent<Button>();
+        this.SwitchAccountButton = this.ViewRoot.transform.FindChild("SwitchAccountButton").GetComponent<Button>();
+        this.UserPhoto = this.ViewRoot.transform.FindChild("UserInfo").FindChild("PhotoMask").FindChild("UserPhoto").GetComponent<RawImage>();
+        this.soundToggle = this.ViewRoot.transform.FindChild("SoundInfo").FindChild("SoundToggle").GetComponent<Toggle>();
+        this.musicToggle = this.ViewRoot.transform.FindChild("SoundInfo").FindChild("MusicToggle").GetComponent<Toggle>();
+        UserName = this.ViewRoot.transform.FindChild("UserInfo/UserName").GetComponent<Text>();
+        ApplicationFacade.Instance.RegisterMediator(new SettingMediator(Mediators.HALL_SETTING, this));
+    }
+    public override void OnShow()
+    {
+        base.OnShow();
+        UIManager.Instance.ShowUIMask(UIViewID.SETTING_VIEW);
+        UIManager.Instance.ShowDOTween(this.ViewRoot.GetComponent<RectTransform>());
+        if (GlobalData.AudioVolume == 0)
+        {
+            this.soundToggle.isOn = false;
+        }
+        else
+        {
+            this.soundToggle.isOn = true;
+        }
+        if (GlobalData.BGMVolume == 0)
+        {
+            this.musicToggle.isOn = false;
+        }
+        else
+        {
+            this.musicToggle.isOn = true;
+        }
+        ViewRoot.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, -800);
+        if (SceneManager.GetActiveScene().name == SceneName.BATTLE)
+        {
+            SwitchAccountButton.gameObject.SetActive(false);
+        }
+        else
+        {
+            SwitchAccountButton.gameObject.SetActive(true);
+        }
+    }
+
+    public override void OnHide()
+    {
+        UIManager.Instance.HidenDOTween(this.ViewRoot.GetComponent<RectTransform>(), base.OnHide);
+    }
+    public override void OnRegister()
+    {
+        this.ViewRootCache = Resources.Load<GameObject>("Prefab/UI/Setting/SettingView");
+    }
+
+    public override void OnDestroy()
+    {
+        base.OnDestroy();
+        ApplicationFacade.Instance.RemoveMediator(Mediators.HALL_SETTING);
+    }
+}

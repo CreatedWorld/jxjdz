@@ -1,0 +1,196 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+/// <summary>
+/// 声音管理类
+/// </summary>
+public class AudioSystem : MonoBehaviour
+{
+
+    /// <summary>
+    /// 背景音效
+    /// </summary>
+    private AudioSource bgmSource;
+    /// <summary>
+    /// 音效音频数组
+    /// </summary>
+    private List<AudioSource> effectAudioList;
+    /// <summary>
+    /// 正在播放的音频数组
+    /// </summary>
+    private List<AudioSource> playingAudioList;
+
+    /// <summary>
+    /// 正在播放的音频url地址
+    /// </summary>
+    private List<string> playingUrlList;
+    public static AudioSystem Instance;
+
+
+    // Use this for initialization
+    void Awake () {
+        Instance = this;
+	    bgmSource = GetComponent<AudioSource>();
+	    bgmSource.volume = PlayerPrefs.GetFloat(PrefsKey.MUSICSET);
+        effectAudioList = new List<AudioSource>();
+	    var effectAudio1 = transform.Find("EffectAudio1").GetComponent<AudioSource>();
+        var effectAudio2 = transform.Find("EffectAudio2").GetComponent<AudioSource>();
+	    effectAudioList.Add(effectAudio1);
+        effectAudioList.Add(effectAudio2);
+	    effectAudio1.volume = PlayerPrefs.GetFloat(PrefsKey.SOUNDSET);
+        effectAudio2.volume = PlayerPrefs.GetFloat(PrefsKey.SOUNDSET);
+        playingAudioList = new List<AudioSource>();
+	    playingUrlList = new List<string>();
+	}
+	
+	// Update is called once per frame
+	void Update () {
+		
+	}
+
+    public void PlayBgm(AudioClip clip)
+    {
+        bgmSource.clip = clip;
+        bgmSource.Play();
+    }
+    /// <summary>
+    /// 上个音效长度
+    /// </summary>
+    public float perAudioLength;
+
+    /// <summary>
+    /// 播放音频
+    /// </summary>
+    /// <param name="clip"></param>
+    /// <returns></returns>
+    public IEnumerator PlayEffectAudio(string clipUrl,float delayTime=0,bool isLoop=false)
+    {
+        //Debug.Log("clipUrl ="+ clipUrl);
+        AudioClip clip = Resources.Load<AudioClip>(clipUrl);
+        perAudioLength = clip.length;
+        if (delayTime > 0)
+        {
+            yield return new WaitForSeconds(delayTime);
+        }
+        AudioSource playAudioSource;
+        if (effectAudioList.Count > 0)
+        {
+            playAudioSource = effectAudioList[0];
+            effectAudioList.RemoveAt(0);
+        }
+        else
+        {
+            var audioObj = new GameObject();
+            audioObj.transform.SetParent(transform);
+            playAudioSource = audioObj.AddComponent<AudioSource>();
+            playAudioSource.loop = false;
+        }
+        playAudioSource.volume = GlobalData.AudioVolume;
+        //playAudioSource.volume = PlayerPrefs.GetFloat("BGMVolume");
+        playingAudioList.Add(playAudioSource);
+        playingUrlList.Add(clipUrl);
+        playAudioSource.clip = clip;
+        playAudioSource.loop = isLoop;
+        playAudioSource.Play();
+        if (!isLoop)
+        {
+            yield return new WaitForSeconds(clip.length);
+            playingAudioList.Remove(playAudioSource);
+            playingUrlList.Remove(clipUrl);
+            effectAudioList.Add(playAudioSource);
+        }
+    }
+
+    /// <summary>
+    /// 播放指定声音
+    /// </summary>
+    /// <param name="clip"></param>
+    /// <returns></returns>
+    public IEnumerator PlayEffectAudio(AudioClip clip)
+    {
+        AudioSource playAudioSource;
+        if (effectAudioList.Count > 0)
+        {
+            playAudioSource = effectAudioList[0];
+            effectAudioList.RemoveAt(0);
+        }
+        else
+        {
+            var audioObj = new GameObject();
+            audioObj.transform.SetParent(transform);
+            playAudioSource = audioObj.AddComponent<AudioSource>();
+            playAudioSource.loop = false;
+        }
+        playAudioSource.volume = PlayerPrefs.GetFloat(PrefsKey.SOUNDSET);
+        //playAudioSource.volume = PlayerPrefs.GetFloat("AudioVolume");
+        playingAudioList.Add(playAudioSource);
+        playingUrlList.Add("");
+        playAudioSource.clip = clip;
+        playAudioSource.Play();
+        yield return new WaitForSeconds(clip.length);
+        playingAudioList.Remove(playAudioSource);
+        playingUrlList.Remove("");
+        effectAudioList.Add(playAudioSource);
+    }
+
+    /// <summary>
+    /// 停止音效播放
+    /// </summary>
+    /// <param name="clipUrl"></param>
+    /// <returns></returns>
+    public void StopEffectAudio(string clipUrl)
+    {
+        var clipIndex = playingUrlList.IndexOf(clipUrl);
+        var playAudioSource = playingAudioList[clipIndex];
+        playAudioSource.Stop();
+        playingUrlList.RemoveAt(clipIndex);
+        effectAudioList.Add(playAudioSource);
+    }
+
+    /// <summary>
+    /// 停止所有声音
+    /// </summary>
+    public void StopAllAudio()
+    {
+        foreach (AudioSource audioSource in playingAudioList)
+        {
+            audioSource.Stop();
+            effectAudioList.Add(audioSource);
+        }
+        playingAudioList.Clear();
+        playingUrlList.Clear();
+        StopAllCoroutines();
+    }
+
+    /// <summary>
+    /// 设置背景音量大小
+    /// </summary>
+    public void SetBgmAudioVolume(float volume)
+    {
+        //PlayerPrefs.SetFloat("BGMVolume", volume);
+        GlobalData.BGMVolume = volume;
+        bgmSource.volume = volume;
+    }
+
+    /// <summary>
+    /// 设置音效大小
+    /// </summary>
+    public void SetEffectAudioVolume(float volume)
+    {
+        foreach (AudioSource audioSource in playingAudioList)
+        {
+            audioSource.volume = volume;
+        }
+        GlobalData.AudioVolume = volume;
+        //PlayerPrefs.SetFloat(PrefsKey.SOUNDSET, volume);
+    }
+    /// <summary>
+    /// 设置语言类型
+    /// </summary>
+    public void SetLanguageType(bool volume)
+    {
+
+        GlobalData.languagebool = volume;
+    }
+}

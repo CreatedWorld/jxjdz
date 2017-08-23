@@ -1,0 +1,416 @@
+import "ProtoFile/HallMsg.proto";
+package Platform.Model;
+option java_package = "avatar.protobuf";  
+option java_outer_classname = "Battle";
+
+message EnterRoomServerC2S {
+	
+}
+
+message EnterRoomServerS2C {
+	
+}
+
+message JoinRoomC2S {
+	required string roomCode = 1;//加入的房间号
+	optional int32 seat=2;//座位号
+}
+
+message JoinRoomS2C {
+	required string roomCode = 1;//房间号
+	required int32 innings = 2;//游戏总局数
+	required int32 curInnings = 3;//当前是第几局
+	required bool isStart = 4;//牌局是否已开始,用于中途进入牌局
+	repeated PlayerInfoVOS2C playInfoArr = 5;//牌局内玩家信息数组
+	optional PushPlayerActTipS2C playerTipAct = 6;//提示的玩家动作,用于中途进入牌局
+	required int32 createId = 7;//房间创建者id
+	repeated int32 playType = 8;//房间的玩法，可以是多个玩法
+	required int32 leftCardCount = 9;// 剩余牌数
+	optional int64 startTime = 10;// 牌局开始时间
+	optional bool hasDisloveApply = 11;//是否有人申请退出房间
+	repeated int32 agreeIds = 12;//同意退出申请的id数组
+	repeated int32 refuseIds = 13;//拒绝退出申请的id数组
+	optional int32 disloveRemainTime = 14;//申请解散剩余时间
+	optional int64 disloveRemainUT = 15;//申请解散剩余时间戳
+	repeated int32 tingCards = 16;//听的牌数组
+}
+
+//解散房间
+message DissolveRoomC2S{
+
+}
+
+//广播解散房间事件给其他同桌玩家
+message DissolveRoomS2C{
+	required int32 clientCode = 1;//操作结果
+}
+
+//退出房间
+message ExitRoomC2S{
+
+}
+
+//广播退出房间事件给其他同桌玩家
+message ExitRoomS2C{
+	required int32 clientCode = 1;//操作结果
+	required int32 userId=2;//哪一个玩家退出了房间
+}
+
+//申请解散房间
+message ApplyDissolveRoomC2S{
+
+}
+
+//广播申请解散房间给其他同一个房间的玩家
+message ApplyDissolveRoomS2C{
+	required int32 userId=1;//哪一个玩家申请解散房间
+}
+
+//取消申请解散房间
+message CancelDissolveRoomC2S{
+
+}
+
+//广播取消申请解散房间给其他同一个房间的玩家
+message CancelDissolveRoomS2C{
+	required int32 userId=1;//哪一个玩家取消解散房间
+}
+
+//解散房间二次确认
+message DissloveRoomConfirmC2S
+{
+	
+}
+//房间解散二次确认返回
+message DissloveRoomConfirmS2C
+{
+	required int32 userId=1;//哪一个玩家确定解散房间
+}
+
+
+//匹配到的单个玩家信息
+message PlayerInfoVOS2C
+{
+	required int32 userId = 1;//用户id
+	required int32 sit = 2;//座位序号1,2,3,4
+	required string name = 3;//玩家名称
+	required bool isMaster = 4;//是否东家
+
+	optional string headIcon = 5;//头像url
+	optional int32 sex = 6;//性别1男 0女
+	optional bool isReady = 7;//是否准备
+	optional int32 score = 8;//当前分数
+	optional bool isBanker = 9;//是否庄家
+
+	repeated int32 handCards = 10;//手中的牌
+	repeated int32 flowerCards = 11;//花牌
+	optional int32 getCard = 12;//摸到的牌,-1表示手中没有摸牌
+	repeated PengGangCardVO pengGangCards = 13;//碰杠的牌数组
+	repeated int32 putCards = 14;//已经出的牌数组
+	optional bool isOnline = 15;//是否在线
+
+}
+
+message PengGangCardVO
+{
+	repeated int32 pengGangCards = 1;//碰杠的牌
+	required int32 targetUserId = 2;//被碰杠的玩家id
+}
+
+message PushPlayerActTipS2C {
+	required int32 optUserId = 1;//当前轮到那一个玩家操作
+	repeated PlayerActType acts = 2;//玩家发出的操作类型
+	repeated int32 actCards = 3;//操作相关的牌
+	repeated int32 forbitCards = 4;//吃之后不允许出的牌数组
+	optional int32 tipRemainTime = 5;//操作提示剩余时间默认15秒
+	optional int64 tipRemainUT = 6;//操作提示剩余时间戳
+	optional int32 targetUserId = 7;//动作的目标玩家id
+}
+
+message PushPlayerActS2C {
+	required int32 userId = 1;//发出动作的玩家公众平台的独立id
+	required PlayerActType act = 2;//玩家发出的操作类型
+	optional int32 actCard = 3;//玩家出的牌
+	repeated int32 chiCards = 4;//吃的牌，例如打出3万，吃1、2万，这里就存1、2万
+	repeated int32 flowerCards = 5;// 玩家摸到的花牌
+	optional int32 targetUserId = 6;//动作的目标玩家id
+}
+
+message PlayerMatchResultVOS2C//单局结算玩家信息
+{
+	required int32 userId = 1;//玩家id
+	repeated PengGangCardVO pengGangs = 2;//碰杠的牌数组
+	repeated int32 handCards = 3;//手中的牌
+	required int32 addScore = 4;//赢得的积分
+	optional string huDesc = 5;//胡牌描述
+	optional int32 anGangCount = 6;//暗杠次数
+	optional int32 mingGangCount = 7;//明杠次数
+
+}
+
+message PlayerRoomResultVOS2C//房间结算玩家信息
+{
+	required int32 userId = 1;//玩家id
+	required int32 selfHuCount = 2;//自摸次数
+	required int32 otherHuCount = 3;//接炮次数
+	required int32 sendPaoCount = 4;//点炮次数
+	required int32 anGangCount = 5;//暗杠次数
+	required int32 mingGangCount = 6;//明杠次数
+	required int32 addScore = 7;//增加的积分
+}
+
+message PushMatchResultS2C {
+	repeated int32 huUserId = 1;//胡牌的人的userId
+	optional int32 huedUserId = 2;//点炮人的id
+	repeated PlayerMatchResultVOS2C resultInfos = 3;//结算的玩家信息
+	optional int32 jiePaoUserId = 7;//接炮玩家id
+	optional int32 ziMoUserId = 8;//自摸玩家id
+	optional int32 huedCard = 9;//点炮的牌
+}
+
+message PushRoomResultS2C {
+	repeated PlayerRoomResultVOS2C resultInfos = 2;//结算的玩家信息
+}
+
+message PushJoinS2C {
+	required PlayerInfoVOS2C playerInfo = 1;//加入的玩家信息
+}
+
+message PushSendChatS2C
+{
+	required int32 senderUserId = 1;//发送方id
+	required string content = 2;//收到的聊天消息内容
+}
+
+message PushVoiceS2C
+{
+	required int32 senderUserId = 1;//发送方id
+	required bytes content = 2;//收到的语音消息内容
+	required int32 flag = 3;//当前状态 -1空闲  0接收数据中  1接收数据完成
+}
+
+message SendVoiceC2S//发送语音
+{
+	required bytes content = 1;//语音消息内容
+	required int32 flag = 2;//当前状态 -1空闲  0接收数据中  1接收数据完成
+}
+
+message SendChatC2S//发送文字聊天
+{
+	required string content = 1;//聊天消息内容
+}
+
+enum PlayerActType//玩家动作类型
+{
+    GET_CARD = 1;//摸牌 PushPlayerActS2C 推送
+    PUT_CARD = 2;//出牌 PushPlayerActTipS2C 推送提示
+    PENG = 3;//碰 PushPlayerActTipS2C 推送提示
+	CHI = 4;//吃 PushPlayerActS2C 推送
+	ZHI_GANG = 5;//直杠 PushPlayerActTipS2C 推送提示	
+	COMMON_PENG_GANG = 6;//普通碰杠 PushPlayerActTipS2C 推送提示
+	BACK_PENG_GANG = 7;//回头碰杠 PushPlayerActTipS2C 推送提示
+	COMMON_AN_GANG = 8;//普通暗杠 PushPlayerActTipS2C 推送提示
+	BACK_AN_GANG = 9;//回头暗杠 PushPlayerActTipS2C 推送提示
+    PASS = 10;//过 PushPlayerActTipS2C 推送提示	
+    SELF_HU = 11;//自摸胡 PushPlayerActTipS2C 推送提示
+	QIANG_ZHI_GANG_HU = 12;//抢直杠胡 PushPlayerActS2C 推送
+	QIANG_AN_GANG_HU = 13;//抢暗杠胡 PushPlayerActS2C 推送
+	QIANG_PENG_GANG_HU = 14;//抢碰杠胡 PushPlayerActS2C 推送
+	CHI_HU = 15;//吃胡 PushPlayerActS2C 推送
+	
+}
+
+//玩家准备 房间广播4002
+message PushReadyS2C {
+	required int32 userId = 1;//准备的玩家公众平台的独立id
+}
+
+//玩家准备4002 推送 PushReadyS2C
+message ReadyC2S {
+}
+
+//在线设置 4052
+message PushOnlineSettingS2C {
+	required int32 userId = 1;
+	required bool isOnline = 2;//是否在线
+}
+
+//在线设置 4052 推送 PushOnlineSettingS2C
+message OnlineSettingC2S {
+	required bool isOnline = 1;//是否在线
+}
+
+//玩家下码 4009
+message PushBettingS2C {
+	required int32 userId = 1;
+}
+
+//玩家下码4009 推送 PushBettingS2C
+message BettingC2S {
+}
+
+// 游戏开始,广播庄家等信息4010,之后推送庄家摸牌动作 PushPlayerActS2C
+message GameStart_S2C {
+	required int32 bankerUserId = 1;//庄家userid
+    repeated int32 dices = 2; //掷骰[6, 5]
+    required int32 currentTimes = 3;// 当前局数
+	repeated int32 handCards = 4;// 当前用户获取到的手牌
+	repeated int32 flowerCards = 5;// 当前用户获取到的花牌
+	required int32 touchMahjongCode = 6;// 庄家摸到的麻将id
+	required int32 leftCardCount = 7;// 剩余牌数
+	required PushPlayerActTipS2C pushPlayerActTipS2C = 8;//玩家操作提示
+	optional int64 startTime = 9;// 牌局开始时间
+}
+
+//玩家出牌4011 推送 PushPlayerActS2C 推送 PushPlayerActTipS2C
+message PlayAMahjongC2S {
+	required int32 mahjongCode = 1;//打出的麻将
+}
+
+//过4012 推送 PushPlayerActS2C 推送 PushPlayerActTipS2C
+message GuoC2S {
+}
+
+//碰4013 推送 PushPlayerActS2C 推送 PushPlayerActTipS2C
+message PengC2S {
+	required int32 mahjongCode = 1;//麻将
+}
+
+//吃4014 推送 PushPlayerActS2C 推送 PushPlayerActTipS2C
+message ChiC2S {
+	repeated int32 mahjongCodes = 1;//吃的3张麻将
+	repeated int32 forbitCards = 2;//吃之后不允许出的牌数组
+}
+
+//普通暗杠4020 推送 PushPlayerActS2C 推送 PushPlayerActTipS2C
+message CommonAnGangC2S {
+	required int32 mahjongCode = 1;//需要暗杠的牌
+}
+
+//回头暗杠4021 推送 PushPlayerActS2C 推送 PushPlayerActTipS2C
+message BackAnGangC2S {
+	required int32 mahjongCode = 1;//需要暗杠的牌
+}
+
+//直杠4022 推送 PushPlayerActS2C 推送 PushPlayerActTipS2C
+message ZhiGangC2S {
+	required int32 mahjongCode = 1;//需要直杠的牌
+}
+
+//普通碰杠4023 推送 PushPlayerActS2C 推送 PushPlayerActTipS2C
+message CommonPengGangC2S {
+	required int32 mahjongCode = 1;//需要暗杠的牌
+}
+
+//回头碰杠4024 推送 PushPlayerActS2C 推送 PushPlayerActTipS2C
+message BackPengGangC2S {
+	required int32 mahjongCode = 1;//需要暗杠的牌
+}
+
+//自摸4030 推送 PushPlayerActS2C
+message ZiMoHuC2S {
+}
+
+//抢直杠4032 推送 PushPlayerActS2C 推送 PushPlayerActTipS2C
+message QiangZhiGangHuC2S {
+}
+
+//抢暗杠4033 推送 PushPlayerActS2C 推送 PushPlayerActTipS2C
+message QiangAnGangHuC2S {
+}
+
+//抢碰杠4034 推送 PushPlayerActS2C 推送 PushPlayerActTipS2C
+message QiangPengGangHuC2S {
+}
+
+//抢碰杠4035 推送 PushPlayerActS2C 推送 PushPlayerActTipS2C
+message ChiHuC2S {
+}
+
+// 4050客户端请求cmd，后台错误时，统一返回此协议给客户端
+message ActErrorS2C
+{
+	required PlayerActType act = 1;//出错的动作类型
+	required int32 errorCode = 2;//出错的错误码
+}
+
+//玩家出牌4011
+message PlayAMahjongS2C {
+	required int32 mahjongCode = 1;//打出的麻将
+	repeated int32 tingCards = 2;//听的牌数组
+}
+
+//过4012
+message GuoS2C {
+	
+}
+
+//碰4013
+message PengS2C {
+	required int32 mahjongCode = 1;//麻将
+}
+
+//吃4014
+message ChiS2C {
+	repeated int32 mahjongCodes = 1;//吃的3张麻将
+	repeated int32 forbitCards = 2;//吃之后不允许出的牌数组
+}
+
+//普通暗杠4020
+message CommonAnGangS2C {
+	required int32 mahjongCode = 1;//需要暗杠的牌
+}
+
+//回头暗杠4021
+message BackAnGangS2C {
+	required int32 mahjongCode = 1;//需要暗杠的牌
+}
+
+//直杠4022
+message ZhiGangS2C {
+	required int32 mahjongCode = 1;//需要直杠的牌
+}
+
+//普通碰杠4023
+message CommonPengGangS2C {
+	required int32 mahjongCode = 1;//需要暗杠的牌
+}
+
+//回头碰杠4024
+message BackPengGangS2C {
+	required int32 mahjongCode = 1;//需要暗杠的牌
+}
+
+//自摸4030
+message ZiMoHuS2C {
+
+}
+
+//抢直杠4032
+message QiangZhiGangHuS2C {
+	
+}
+
+//抢暗杠4033
+message QiangAnGangHuS2C {
+	
+}
+
+//抢碰杠4034
+message QiangPengGangHuS2C {
+	
+}
+
+//吃胡4035
+message ChiHuS2C {
+	
+}
+
+//心跳包4051
+message BattleBeatC2S
+{
+}
+//心跳包4051
+message BattleBeatS2C
+{
+}

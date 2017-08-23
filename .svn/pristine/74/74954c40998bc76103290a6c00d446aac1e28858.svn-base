@@ -1,0 +1,19 @@
+package Platform.Model;
+option java_package = "avatar.protobuf";  
+option java_outer_classname = "Login";
+
+message LoginC2S {
+	required string mac = 1;//用户唯一标识。手机mac地址
+	required string name= 2;//用户名字
+	required string psw = 3;//用户密码
+	required string imageUrl = 4;//用户头像Url
+	required int32 sex = 5;//性别 0-女 1-男
+}
+
+message LoginS2C {
+	required int32 userId = 1;//用户id
+	required int32 status = 2;//创建状态0失败，1成功
+	required string serverIp=3;//服务器地址
+	required int32 port=4;//服务器端口
+	required int64 time=5;//当前服务器的时间戳
+}

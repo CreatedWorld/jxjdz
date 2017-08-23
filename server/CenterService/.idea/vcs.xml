@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../Common" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../ExtService" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../LoginService" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../RoomService" vcs="svn" />
+  </component>
+</project>

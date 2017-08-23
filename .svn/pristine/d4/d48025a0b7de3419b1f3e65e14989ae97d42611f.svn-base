@@ -1,0 +1,10 @@
+package Antiphon.protobuf;
+option java_package = "com.Antiphon.protobuf";
+option java_outer_classname = "Test";
+
+option optimize_for = SPEED;
+
+message Test
+{
+	required string content = 1;
+}

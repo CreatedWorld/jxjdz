@@ -1,0 +1,297 @@
+package Platform.Model;
+option java_package = "avatar.protobuf";  
+option java_outer_classname = "Hall";
+//提示框(2001)
+message DialogS2C
+{
+	required int32 dialogCode = 1;//提示框ID
+}
+
+//大厅点击创建房间操作(2002)
+message CheckCreateRoomC2S{
+	required int32 roomRounds=1;//创建房间的回合数
+	required int32 roomRule=2;//创建房间的规则（类型）
+	repeated int32 playType=3;//玩法集合
+}
+//(2002)
+message CheckCreateRoomS2C{
+	required int32 clientCode=1;//是否能创建房间的状态码
+	optional string roomServerIp=2;//创建成功，返回具体的房间服务器的地址
+	optional int32 roomServerPort=3;//创建成功，返回具体的房间服务器的ip
+	optional string roomCode=4;//房间号
+	required int32 seat=5;//座位号
+}
+
+//大厅点击加入房间操作(2009)
+message JoinInRoomC2S{
+	required string roomCode=1;//房间号
+	optional int32 seat=2;//座位号
+}
+//(2009)
+message JoinInRoomS2C{
+	required int32 clientCode=1;//是否能创建房间的状态码;1:成功;1002-房间不存在;1001-已经在房间内;1008-房间人数已满;1005-已经有玩家在该座位上，不能加入
+	optional int32 roomRounds=2;//创建房间的回合数
+	optional int32 roomRule=3;//创建房间的规则（类型）
+	optional string roomServerIp=4;//创建成功，返回具体的房间服务器的地址
+	optional int32 roomServerPort=5;//创建成功，返回具体的房间服务器的ip
+	optional int32 seat=6;//座位号
+}
+
+
+
+//===================================================================================
+
+
+
+//领取签到奖励接口(2008)
+message GetCardInfoC2S{
+}
+//(2008)
+message GetCardInfoS2C{
+    required int32 status = 1;//是否领取成功 1-成功 0-失败
+    repeated UserItem userItems = 2;//货币的数量
+}
+
+//添加房卡（用于测试）
+message AddCardInfoC2S{
+    required int32 num = 1;//需要添加的房卡的数量
+}
+message AddCardInfoS2C{
+    required int32 clientCode = 1;//前后端操作的状态码
+}
+
+//获取签到信息接口(2005)
+message GetCheckInInfoC2S{
+}
+//(2005)
+message GetCheckInInfoS2C{
+    required int32 days=1;//已经签到的天数
+    required int32 status=2;//签到奖励的状态。-1不能领取；0可以领取；1已经领取
+}
+
+//点击签到接口(2004)
+message CheckInC2S{
+}
+//(2004)
+message CheckInS2C{
+    required int32 clientCode=1;//前后端操作的状态码
+    optional int32 days=2;//已经签到的天数
+    optional int32 status=3;//签到奖励的状态。-1不能领取；0可以领取；1已经领取
+}
+
+//获取签到奖励接口(2008)
+message GetCheckInRewardC2S{
+}
+//(2008)
+message GetCheckInRewardS2C{
+    required int32 status = 1;//签到奖励的状态。-1不能领取；0可以领取；1已经领取
+    repeated UserItem userItems = 2;//玩家道具资源
+}
+
+message UserItem
+{
+    required int32 type = 1;//货币的类型,如:金币,砖石
+    required int32 amount = 2;//货币数量
+}
+
+//获取用户信息(2006)
+message GetUserInfoC2S{
+}
+//(2006)
+message GetUserInfoS2C{
+    required string userName = 1;//用户名字
+    repeated UserItem userItems = 2;//玩家货币
+    required string showId = 3;//玩家在游戏中显示的id
+    required string ip=4;//玩家的ip地址
+    required string imageUrl = 5;//用户头像Url
+    required int32 sex = 6;//性别 0-女 1-男
+    optional int32 boundAgency = 7;//账号是否绑定过充值代理,1-已经绑定 0-未绑定
+}
+///////////////////////////////////////
+//获取对战成绩(2010)
+message GetGradeInfoC2S
+{
+}
+//(2010)
+message GetGradeInfoS2C
+{
+    repeated GradeDataS2C gradeDataS2C = 1;//对战信息
+}
+//对战信息
+message GradeDataS2C
+{
+    required int32 roomID = 1;//房间ID
+    required int64 time = 2;//游戏时间
+    required string roomCode = 3;//显示的房间号
+    repeated UsersInfoS2C usersInfo = 4;//参赛者
+}
+///////////////////////////////////////
+//获取具体房间对战信息(2011)
+message GetRoundInfoC2S
+{
+    required int32 roomID = 1;//房间ID
+}
+//(2011)
+message GetRoundInfoS2C
+{
+    repeated RoundData roundData = 1;
+}
+
+//具体房间对战信息
+message RoundData
+{
+    required int32 roomID = 1;//房间ID
+    required string roomCode = 2;//显示的房间号
+    required int64 time = 3;//游戏时间
+    repeated UsersInfoS2C usersInfo = 4;//参赛者
+	required int32 reportId = 5;//战报id
+}
+/////////////////////////////////////
+//参赛者
+message UsersInfoS2C
+{
+    required string userName = 1; //玩家名
+    required int32 score = 2; //分数
+}
+/////////////////////////////////////
+//检查自己报名比赛状态(2012)
+message CheckApplyStatusC2S{
+}
+//(2012)
+message CheckApplyStatusS2C{
+    required int32 status = 1;//比赛状态,1----已报名,0----未报名
+    optional int64 currentTime = 2;//当前服务器时间戳
+    optional int64 startTime = 3;//开始比赛的时间戳
+    optional int64 endTime = 4;//结束比赛的时间戳
+
+}
+//申请报名比赛(2013)
+message ApplyCompetitionC2S{
+}
+//(2013)
+message ApplyCompetitionS2C{
+    required int32 status = 1;//是否报名成功,1----成功,0----失败
+}
+//申请参加比赛(2014)
+message JoinCompetitionC2S{
+}
+//(2014)
+message JoinCompetitionS2C{
+    required int32 status = 1;//是否可以参加比赛,1----成功,0----失败
+}
+//发送邀请码(2015)
+message CheckInvitationCodeC2S
+{
+    required int32 invitationId = 1;//输入验证码(玩家id)
+}
+//(2015)
+message CheckInvitationCodeS2C
+{
+    required int32 status = 1;//邀请码是否正确,1----正确,0----不正确
+}
+//公告(2016)
+message PushAnnouncementS2C
+{
+    required string content = 1;//公告内容
+    required int32 cirCount = 2;//循环次数
+}
+/////////////////////////////////////
+//申请匹配(2017)
+message ApplyMatchingC2S
+{
+	required int32 roomType=1;	//游戏类型
+	required int32 roomRounds=2;	//回合数
+}
+//(2017)
+message ApplyMatchingS2C
+{
+    required int32 status = 1;//是否匹配成功,1----成功,0----失败
+}
+//匹配成功(2018)
+message MatchingSucceedS2C
+{
+    	required string roomCode=1;//房间号
+	optional int32 roomRounds=2;//创建房间的回合数
+	optional int32 roomRule=3;//创建房间的规则（类型）
+	optional string roomServerIp=4;//创建成功，返回具体的房间服务器的地址
+	optional int32 roomServerPort=5;//创建成功，返回具体的房间服务器的ip
+	optional int32 seat=6;//座位号
+}
+//取消匹配(2019)
+message CancelMatchingC2S
+{
+	required int32 roomType=1;	//游戏类型
+	required int32 roomRounds=2;	//回合数
+}
+//(2019)
+message CancelMatchingS2C
+{
+	required int32 status = 1;//是否取消成功 1-成功 2-失败
+}
+//获取匹配结算(2020)
+message GetRankingListC2S
+{
+}
+//(2020)
+message GetRankingListS2C
+{
+}
+//大厅公告配置（公告、喇叭、客服 ）2021
+message NoticeConfigS2C
+{
+    repeated NoticeConfigDataS2C noticeConfigData = 1;//
+}
+message NoticeConfigDataS2C
+{
+    required int32 type = 1;//类型：1为公告；2为喇叭；3为客服;4为最新活动;5为推广专员;6为大厅公告图片;7为大厅公告文本
+    optional string title = 2;//标题
+    required string content = 3;//内容
+}
+
+//2022
+message GetUserInfoByIdC2S{
+    required int32 userId= 1;//用户id
+}
+message GetUserInfoByIdS2C{
+    required string userName = 1;//用户名字
+    repeated UserItem userItems = 2;//玩家货币
+    required string showId = 3;//玩家在游戏中显示的id
+    required string ip=4;//玩家的ip地址
+    required string imageUrl = 5;//用户头像Url
+    required int32 userId= 6;//用户id
+}
+//回放录像(2023)
+message PlayVideoC2S
+{
+    required int32 round = 1;//回合数
+    required int32 roomId = 2;//房间ID
+}
+//(2023)
+message PlayVideoS2C
+{
+	required string report = 1;//战报内容
+}
+
+//重连（2024）
+message ReConnectC2S{
+}
+
+message ReConnectS2C{
+	required int32 roomId=1;//房间id
+	optional string roomCode=2;//房间号
+	optional string roomIp=3;//房间服务器ip
+	optional int32 roomPort=4;//房间端口
+}
+//2025
+message PushUserItem{
+	repeated UserItem userItems = 1;//玩家货币
+}
+
+//心跳包
+message HallBeatC2S
+{
+}
+//心跳包
+message HallBeatS2C
+{
+}
